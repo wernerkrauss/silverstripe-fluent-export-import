@@ -53,6 +53,9 @@ class FluentHelper
                 }
             });
 
+        if (count($localisedData) === 1 && array_key_exists('ID', $localisedData)) {
+            return [];
+        }
 
         return $localisedData;
     }

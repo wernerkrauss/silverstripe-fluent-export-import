@@ -94,14 +94,21 @@ class FluentExport extends BuildTask
             return '';
         }
 
-        $data[$locale][$className]['Info'] = [
-            'Title' => singleton($className)->singular_name(),
-            'Records' => $records->count()
-        ];
+        $data[$locale][$className] = [];
+//        $data[$locale][$className]['Info'] = [
+//            'Title' => singleton($className)->singular_name(),
+//            'Records' => $records->count()
+//        ];
 
         foreach ($records as $record) {
             $recordData = FluentHelper::getLocalisedDataFromDataObject($record, $locale);
+            if (count($recordData) === 0) {
+                continue;
+            }
             $data[$locale][$className][$record->ID] = $recordData;
+        }
+        if (count($data[$locale][$className]) === 0) {
+            return '';
         }
 
         $sanitisedClassName = str_replace('\\', '-', $className);
