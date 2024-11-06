@@ -1,0 +1,41 @@
+{
+  "name": "wernerkrauss/silverstripe-fluent-export-import",
+  "description": "File export and import for SilverStripe Fluent",
+  "type": "silverstripe-vendor-module",
+  "keywords": [
+    "silverstripe",
+    "extension",
+    "fluent",
+    "multilingual",
+    "i18n"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Werner Krauß",
+      "email": "werner.krauss@netwerkstatt.at",
+      "homepage": "http://www.netwerkstatt.at",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/wernerkrauss/silverstripe-fluent-export-import/issues"
+  },
+  "require": {
+    "silverstripe/framework": "^5",
+    "tractorcow/silverstripe-fluent": "^7"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9",
+    "silverleague/ideannotator": "^3",
+    "squizlabs/php_codesniffer": "^3.6",
+    "wernerkrauss/silverstripe-rector": "^0.1"
+  },
+  "scripts": {
+    "lint": "vendor/bin/phpcs",
+    "fix": "vendor/bin/phpcbf",
+    "rector": "vendor/bin/rector -v",
+    "rector-dry": "vendor/bin/rector -v --dry-run",
+    "phpstan": "vendor/bin/phpstan"
+  }
+}
