@@ -24,8 +24,14 @@ class FluentExport extends BuildTask
 
     protected $enabled = true;
 
+    /**
+     * @config
+     */
     protected $title = 'Fluent Export to YML';
 
+    /**
+     * @config
+     */
     protected $description = 'Export all classes with FluentExtension to yml files';
 
 
@@ -76,6 +82,7 @@ class FluentExport extends BuildTask
             echo 'Zip file created: ' . $zipFilename . PHP_EOL;
             return;
         }
+
         ob_clean();
         header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename="' . basename($zipFilename) . '"');
@@ -102,12 +109,14 @@ class FluentExport extends BuildTask
 
         foreach ($records as $record) {
             $recordData = FluentHelper::getLocalisedDataFromDataObject($record, $locale);
-            if (count($recordData) === 0) {
+            if ($recordData === []) {
                 continue;
             }
+
             $data[$locale][$className][$record->ID] = $recordData;
         }
-        if (count($data[$locale][$className]) === 0) {
+
+        if ($data[$locale][$className] === []) {
             return '';
         }
 

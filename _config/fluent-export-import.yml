@@ -1,0 +1,6 @@
+---
+name: fluent-export-import
+---
+SilverStripe\CMS\Model\SiteTree:
+  translate_ignore:
+    - URLSegment

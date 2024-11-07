@@ -6,6 +6,17 @@ Run `dev/tasks/fluent-export` to export all translations as a zip of yml files.
 
 Then you can translate the content and import it again (to be done).
 
+## Configuration
+
+You can configure fields you don't want to export, e.g. SiteTree's URLSegment:
+
+```yml
+SilverStripe\CMS\Model\SiteTree:
+  translate_ignore:
+    - URLSegment
+```
+
+
 ## Todo
 - [X] Export translations to YML
 - [ ] Import translations from YML

@@ -3,6 +3,7 @@
 namespace Netwerkstatt\FluentExIm\Helper;
 
 use SilverStripe\Core\ClassInfo;
+use SilverStripe\Core\Config\Config;
 use SilverStripe\ORM\DataObject;
 use TractorCow\Fluent\Extension\FluentExtension;
 use TractorCow\Fluent\Model\Locale;
@@ -28,6 +29,12 @@ class FluentHelper
             $fieldsToTranslate = array_merge($fieldsToTranslate, $fieldArray);
         }
 
+        $ignoredFields = Config::inst()->get($className, 'translate_ignore');
+
+        if ($ignoredFields) {
+            $fieldsToTranslate = array_diff($fieldsToTranslate, $ignoredFields);
+        }
+
         return $fieldsToTranslate;
     }
 
@@ -45,7 +52,7 @@ class FluentHelper
             ->withState(static function (FluentState $state) use ($fields, $dataObject, &$localisedData) {
                 //reload Dataobject to get the correct values
                 $dataObject = DataObject::get($dataObject->ClassName)->byID($dataObject->ID);
-                foreach ($fields as $key => $field ) {
+                foreach ($fields as $key => $field) {
                     $value = $dataObject->$field;
                     if ($value !== null) {
                         $localisedData[$field] = $value;
