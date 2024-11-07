@@ -76,7 +76,7 @@ class FluentExport extends BuildTask
             echo 'Zip file created: ' . $zipFilename . PHP_EOL;
             return;
         }
-
+        ob_clean();
         header('Content-Type: application/zip');
         header('Content-Disposition: attachment; filename="' . basename($zipFilename) . '"');
         header('Content-Length: ' . filesize($zipFilename));
