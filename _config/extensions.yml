@@ -1,0 +1,7 @@
+---
+name: fluent-export-import-extensions
+---
+
+TractorCow\Fluent\Control\LocaleAdmin:
+  extensions:
+    export: Netwerkstatt\FluentExIm\Extension\LocaleAdmin

@@ -72,6 +72,7 @@ class FluentExportHelper
 
             $filenames[$className] = FluentExportHelper::exportClass($className, $locale);
         }
+
          //remove empty entries
         return array_filter($filenames);
     }
@@ -80,10 +81,13 @@ class FluentExportHelper
      * @param array $filenames
      * @return string
      */
-    public static function generateZipArchive(array $filenames): string
+    public static function generateZipArchive(array $filenames, string $locale): string
     {
+        $filename = sprintf('fluent-export-%s-%s.zip', $locale, date('Y-m-d-H-i-s'));
+        $zipFilename = TEMP_PATH . '/fluent-ex-im/' . $filename;
+
         $zip = new \ZipArchive();
-        $zipFilename = TEMP_PATH . '/fluent-ex-im/fluent-export.zip';
+
         $zip->open($zipFilename, \ZipArchive::CREATE);
         foreach ($filenames as $key => $filename) {
             $zip->addFile($filename, basename((string)$filename));

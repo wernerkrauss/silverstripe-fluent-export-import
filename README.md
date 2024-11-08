@@ -6,6 +6,9 @@ Run `dev/tasks/fluent-export` to export all translations as a zip of yml files.
 
 Then you can translate the content and import it again (to be done).
 
+## Important
+I take no warranty for any data loss. Please backup your database before importing translations.
+
 ## Configuration
 
 You can configure fields you don't want to export, e.g. SiteTree's URLSegment:
@@ -22,7 +25,6 @@ SilverStripe\CMS\Model\SiteTree:
 - [ ] Import translations from YML
 - [ ] other file adapters like json or xliff
 - [ ] better UI, e.g. in LocaleAdmin
-
 
 ## Thanks to
 Thanks to [Nobrainer](https://www.nobrainer.dk/) for sponsoring this module ❤️.

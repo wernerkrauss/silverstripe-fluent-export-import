@@ -48,7 +48,7 @@ class FluentExport extends BuildTask
             return;
         }
 
-        $zipFilename = FluentExportHelper::generateZipArchive($filenames);
+        $zipFilename = FluentExportHelper::generateZipArchive($filenames, $locale);
 
         if (Director::is_cli()) {
             echo 'Exported ' . count($filenames) . ' classes to yml files:' . PHP_EOL;
