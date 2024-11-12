@@ -5,6 +5,6 @@ TractorCow\Fluent\Model\Locale:
   extensions:
     export: Netwerkstatt\FluentExIm\Extension\LocaleExportImport
 
-TractorCow\Fluent\Control\LocaleAdmin:
-  extensions:
-    export: Netwerkstatt\FluentExIm\Extension\LocaleAdmin
+#TractorCow\Fluent\Control\LocaleAdmin:
+#  extensions:
+#    export: Netwerkstatt\FluentExIm\Extension\LocaleAdmin

@@ -2,6 +2,9 @@
 
 namespace Netwerkstatt\FluentExIm\Form\GridField;
 
+use LeKoala\CmsActions\CustomAction;
+use LeKoala\CmsActions\CustomLink;
+use LeKoala\CmsActions\SilverStripeIcons;
 use Netwerkstatt\FluentExIm\Helper\FluentExportHelper;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
@@ -59,6 +62,19 @@ JS;
         }
 
         return $form;
+    }
+
+    protected function getFormActions()
+    {
+        $actions = parent::getFormActions();
+        if($this->getRecord()->canExport()) {
+            $exportAction = CustomLink::create('doExport', 'Export Translations LEKOALA');
+            $exportAction->setButtonIcon(SilverStripeIcons::ICON_EXPORT);
+            $exportAction->addExtraClass('btn-primary');
+            $actions->push($exportAction);
+        }
+
+        return $actions;
     }
 
     public function doExport()

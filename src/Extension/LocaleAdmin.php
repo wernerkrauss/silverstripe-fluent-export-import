@@ -12,8 +12,8 @@ class LocaleAdmin extends Extension
 {
     public function updateGridFieldConfig(GridFieldConfig $config)
     {
-        if ($this->getOwner()->modelClass === Locale::class) {
-            $config->getComponentByType(GridFieldDetailForm::class)?->setItemRequestClass(LocaleAdmin_ItemRequest::class);
-        }
+//        if ($this->getOwner()->modelClass === Locale::class) {
+//            $config->getComponentByType(GridFieldDetailForm::class)?->setItemRequestClass(LocaleAdmin_ItemRequest::class);
+//        }
     }
 }
