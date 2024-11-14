@@ -32,7 +32,7 @@ class LocaleExportImport extends Extension
             $exportAction = CustomLink::create('doExport', _t(self::class . '.DOEXPORT', 'Export Translations'));
             $exportAction->setButtonIcon(SilverStripeIcons::ICON_EXPORT);
             $exportAction->setNoAjax(true);
-            $exportAction->setConfirmation(_t(self::class . '.EXPORT_CONFIRMATION', 'Export all {locale} translations as yml files in a zip archive?', ['locale' => $this->owner->Locale]));
+            $exportAction->setConfirmation(_t(self::class . '.EXPORT_CONFIRMATION', 'Export all {locale} translations as yml files in a zip archive?', ['locale' => $this->getOwner()->Locale]));
             $actions->push($exportAction);
         }
 

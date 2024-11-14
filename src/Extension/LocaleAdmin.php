@@ -43,8 +43,11 @@ class LocaleAdmin extends Extension
         $fields->push(HiddenField::create('ID', 'ID', $ID));
         $fields->push(HiddenField::create('Locale', 'Locale', $record->Locale));
 
-        $buttonTitle = _t(self::class . '.IMPORT_MODAL_TITLE', 'Import {locale} Translations',
-            ['locale' => $record->Title]);
+        $buttonTitle = _t(
+            self::class . '.IMPORT_MODAL_TITLE',
+            'Import {locale} Translations',
+            ['locale' => $record->Title]
+        );
         $importAction = FormAction::create('doImport', $buttonTitle);
         $importAction->addExtraClass('btn btn-outline-danger font-icon font-icon-upload');
 
@@ -93,7 +96,8 @@ class LocaleAdmin extends Extension
 
         $file = $data['ImportUpload'];
 
-        if (str_ends_with($file['name'], '.yml')) {
+        $count = 0;
+        if (str_ends_with((string) $file['name'], '.yml')) {
             $content = file_get_contents($file['tmp_name']);
 
             try {
@@ -103,12 +107,13 @@ class LocaleAdmin extends Extension
                 return $this->getOwner()->redirectBack();
             }
         }
-        if (str_ends_with($file['name'], '.zip')) {
+
+        if (str_ends_with((string) $file['name'], '.zip')) {
             $zip = new \ZipArchive();
             $res = $zip->open($file['tmp_name']);
             if ($res === true) {
                 $count = 0;
-                for ($i = 0; $i < $zip->numFiles; $i++) {
+                for ($i = 0; $i < $zip->numFiles; ++$i) {
                     $filename = $zip->getNameIndex($i);
                     $content = $zip->getFromName($filename);
                     try {
@@ -118,6 +123,7 @@ class LocaleAdmin extends Extension
                         return $this->getOwner()->redirectBack();
                     }
                 }
+
                 $zip->close();
             } else {
                 $form->sessionMessage('Error opening zip file', 'bad');
@@ -145,7 +151,7 @@ class LocaleAdmin extends Extension
         foreach ($translated as $class => $records) {
             $count += count($records);
         }
+
         return $count;
     }
-
 }
