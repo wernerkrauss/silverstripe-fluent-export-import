@@ -75,7 +75,7 @@ class LocaleAdmin extends Extension
     {
         $info = HeaderField::create('ImportInfo', _t(
             self::class . '.IMPORTINFO',
-            'Import translations from yml files with the translations. The file structure should be like the one you can export.'
+            'Import translations from a zip containing yml files or a single yml file with the translations. The file structure should be like the one you can export.'
         ));
 
         $upload = FileField::create('ImportUpload', _t(self::class . '.IMPORTUPLOAD', 'Upload translations'));
