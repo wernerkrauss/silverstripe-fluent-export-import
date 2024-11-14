@@ -25,7 +25,7 @@
         "ext-zip": "*",
         "silverstripe/framework": "^5",
         "tractorcow/silverstripe-fluent": "^7",
-        "lekoala/silverstripe-pure-modal": "^1.2",
+        "lekoala/silverstripe-pure-modal": "^1.2.1",
         "lekoala/silverstripe-cms-actions": "^1.7"
     },
     "require-dev": {

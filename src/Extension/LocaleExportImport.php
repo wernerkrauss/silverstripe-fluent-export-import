@@ -52,6 +52,7 @@ class LocaleExportImport extends Extension
         $import->setIframeAction('ImportModal');
         //doesn't work now, see https://github.com/lekoala/silverstripe-pure-modal/issues/12
         $import->addExtraClass('font-icon font-icon-install');
+        $import->setButtonIcon(SilverStripeIcons::ICON_INSTALL);
 
         $actions->push($import);
     }
