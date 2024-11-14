@@ -2,12 +2,18 @@
 
 namespace Netwerkstatt\FluentExIm\Extension;
 
-use LeKoala\CmsActions\CustomAction;
 use LeKoala\CmsActions\CustomLink;
 use LeKoala\CmsActions\SilverStripeIcons;
+use LeKoala\PureModal\PureModal;
+use LeKoala\PureModal\PureModalAction;
 use Netwerkstatt\FluentExIm\Helper\FluentExportHelper;
+use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\FileField;
+use SilverStripe\Forms\HeaderField;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\TextField;
 use TractorCow\Fluent\Model\Locale;
 
 class LocaleExportImport extends Extension
@@ -27,8 +33,8 @@ class LocaleExportImport extends Extension
 
     public function updateCMSActions(FieldList $actions)
     {
-        if($this->owner->canExport()) {
-            $exportAction = CustomLink::create('doExport', 'Export Translations');
+        if ($this->owner->canExport()) {
+            $exportAction = CustomLink::create('doExport', _t(self::class . '.DOEXPORT', 'Export Translations'));
             $exportAction->setButtonIcon(SilverStripeIcons::ICON_EXPORT);
             $exportAction->setNoAjax(true);
             //doesn't work with setNoAjax, see https://github.com/lekoala/silverstripe-cms-actions/issues/40
@@ -36,15 +42,24 @@ class LocaleExportImport extends Extension
             $actions->push($exportAction);
         }
 
+        $import = PureModal::create('ImportLocale', 'Import Translations', 'Some Text');
+        $import->setIframeAction('ImportModal');
+        $actions->push($import);
     }
 
     public function onAfterUpdateCMSActions(FieldList $actions)
     {
         $exportAction = $actions->fieldByName('doExport');
+        $importAction = $actions->fieldByName('ImportLocale');
         if ($exportAction) {
             //move at the end of the stack to appear on the right side
             $actions->remove($exportAction);
             $actions->push($exportAction);
+        }
+        if ($importAction) {
+            //move at the end of the stack to appear on the right side
+            $actions->remove($importAction);
+            $actions->push($importAction);
         }
     }
 

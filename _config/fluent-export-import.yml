@@ -4,3 +4,15 @@ name: fluent-export-import
 SilverStripe\CMS\Model\SiteTree:
   translate_ignore:
     - URLSegment
+
+SilverStripe\Assets\File:
+  allowed_extensions:
+    - yml
+    - zip
+
+SilverStripe\MimeValidator\MimeUploadValidator:
+  MimeTypes:
+    yml:
+      - 'text/plain'
+      - 'application/x-yaml'
+    zip: 'application/zip'
