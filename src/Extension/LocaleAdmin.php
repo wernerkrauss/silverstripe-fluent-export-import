@@ -2,7 +2,6 @@
 
 namespace Netwerkstatt\FluentExIm\Extension;
 
-use TractorCow\Fluent\Model\Locale;
 use Netwerkstatt\FluentExIm\Helper\FluentImportHelper;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Extension;
@@ -10,10 +9,10 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\FileField;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
-use SilverStripe\Forms\GridField\GridFieldConfig;
 use SilverStripe\Forms\HeaderField;
 use SilverStripe\Forms\HiddenField;
 use Symfony\Component\Yaml\Yaml;
+use TractorCow\Fluent\Model\Locale;
 
 class LocaleAdmin extends Extension
 {
@@ -44,7 +43,8 @@ class LocaleAdmin extends Extension
         $fields->push(HiddenField::create('ID', 'ID', $ID));
         $fields->push(HiddenField::create('Locale', 'Locale', $record->Locale));
 
-        $buttonTitle = _t(self::class . '.IMPORT_MODAL_TITLE', 'Import {locale} Translations', ['locale' => $record->Title]);
+        $buttonTitle = _t(self::class . '.IMPORT_MODAL_TITLE', 'Import {locale} Translations',
+            ['locale' => $record->Title]);
         $importAction = FormAction::create('doImport', $buttonTitle);
         $importAction->addExtraClass('btn btn-outline-danger font-icon font-icon-upload');
 
@@ -76,7 +76,7 @@ class LocaleAdmin extends Extension
         ));
 
         $upload = FileField::create('ImportUpload', _t(self::class . '.IMPORTUPLOAD', 'Upload translations'));
-        $upload->setAllowedExtensions(['yml']);
+        $upload->setAllowedExtensions(['yml', 'zip']);
 
         return FieldList::create([
             $info,
@@ -92,18 +92,28 @@ class LocaleAdmin extends Extension
         }
 
         $file = $data['ImportUpload'];
+
+
         $content = file_get_contents($file['tmp_name']);
+
+        try {
+            $count = $this->handleYmlFile($content, $data['Locale']);
+        } catch (\Exception $e) {
+            $form->sessionMessage($e->getMessage(), 'bad');
+            return $this->getOwner()->redirectBack();
+        }
+
+        $form->sessionMessage($count . ' Translations imported', 'good');
+        return $this->getOwner()->redirectBack();
+    }
+
+    public function handleYmlFile(string $content, string $locale): int
+    {
         $translationData = Yaml::parse($content);
-
+        FluentImportHelper::setLocale($locale);
+        FluentImportHelper::validateLocaleTranslationData($translationData);
         $translated = [];
-        foreach ($translationData as $locale => $classes) {
-            //check if locale exists and is locale of current object
-            if ($locale !== $data['Locale']) {
-                $form->sessionMessage('Locale in file does not match locale of current object', 'bad');
-                return $this->getOwner()->redirectBack();
-            }
-
-            FluentImportHelper::setLocale($locale);
+        foreach ($translationData as $classes) {
             foreach ($classes as $className => $records) {
                 $translated[$className] = FluentImportHelper::importTranslationsForClass($className, $records);
             }
@@ -113,8 +123,7 @@ class LocaleAdmin extends Extension
         foreach ($translated as $class => $records) {
             $count += count($records);
         }
-
-        $form->sessionMessage($count . ' Translations imported', 'good');
-        return $this->getOwner()->redirectBack();
+        return $count;
     }
+
 }

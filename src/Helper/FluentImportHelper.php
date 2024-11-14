@@ -56,4 +56,20 @@ class FluentImportHelper
 
         return $translated;
     }
+
+    public static function validateLocaleTranslationData(array $translationData): bool
+    {
+        if (self::$locale === '') {
+            throw new \RuntimeException('Locale must be set before importing translations');
+        }
+
+        foreach ($translationData as $locale => $classes) {
+            //check if locale exists and is locale of current object
+            if ($locale !== self::$locale) {
+                throw new \RuntimeException('Locale in file does not match locale of current object');
+            }
+        }
+
+        return true;
+    }
 }
