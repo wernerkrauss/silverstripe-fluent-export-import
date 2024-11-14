@@ -2,7 +2,6 @@
 
 namespace Netwerkstatt\FluentExIm\Helper;
 
-
 use SilverStripe\ORM\DataObject;
 use TractorCow\Fluent\Extension\FluentExtension;
 use TractorCow\Fluent\Model\Locale;
@@ -27,15 +26,17 @@ class FluentImportHelper
         $fieldsToTranslate = FluentHelper::getTranslatedFieldsForClass($className);
 
         $locale = self::$locale;
+        /** @var ?Locale $localeObj */
         $localeObj = Locale::get()->filter('Locale', $locale)->first();
-        if (!$localeObj) {
+        if ($localeObj === null || !$localeObj->exists()) {
             throw new \InvalidArgumentException('Locale ' . $locale . ' not found');
         }
 
         $translated = [];
         foreach ($translations as $translation) {
+            /** @var ?DataObject $dataObject */
             $dataObject = DataObject::get($className)->byID($translation['ID']);
-            if (!$dataObject) {
+            if ($dataObject === null || !$dataObject->exists()) {
                 throw new \InvalidArgumentException('DataObject of class ' . $className . ' with ID ' . $translation['ID'] . ' not found');
             }
 
@@ -47,10 +48,12 @@ class FluentImportHelper
                             $dataObject->$field = $translation[$field];
                         }
                     }
+
                     $dataObject->write();
                 });
             $translated[] = $dataObject;
         }
+
         return $translated;
     }
 }

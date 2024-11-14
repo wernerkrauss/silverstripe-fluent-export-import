@@ -14,7 +14,7 @@ class LocaleExportImport extends Extension
 {
     public function canExport(): bool
     {
-        return $this->owner->canView();
+        return $this->getOwner()->canView();
     }
 
     public function canImport(): bool
@@ -22,12 +22,13 @@ class LocaleExportImport extends Extension
         if ($this->getOwner()->IsGlobalDefault) {
             return false;
         }
-        return $this->owner->canView();
+
+        return $this->getOwner()->canView();
     }
 
     public function updateCMSActions(FieldList $actions)
     {
-        if ($this->owner->canExport()) {
+        if ($this->getOwner()->canExport()) {
             $exportAction = CustomLink::create('doExport', _t(self::class . '.DOEXPORT', 'Export Translations'));
             $exportAction->setButtonIcon(SilverStripeIcons::ICON_EXPORT);
             $exportAction->setNoAjax(true);
@@ -36,14 +37,22 @@ class LocaleExportImport extends Extension
             $actions->push($exportAction);
         }
 
-        $buttonTitle = _t(self::class . '.IMPORT_MODAL_TITLE', 'Import {locale} Translations',
-            ['locale' => $this->owner->Title]);
-        $modalTitle = _t(self::class . '.IMPORT_MODAL_TITLE', 'Import {locale} ({localeCode})Translations',
-            ['locale' => $this->owner->Title, 'localeCode' => $this->owner->Locale]);
+        $buttonTitle = _t(
+            self::class . '.IMPORT_MODAL_TITLE',
+            'Import {locale} Translations',
+            ['locale' => $this->getOwner()->Title]
+        );
+        $modalTitle = _t(
+            self::class . '.IMPORT_MODAL_TITLE',
+            'Import {locale} ({localeCode})Translations',
+            ['locale' => $this->getOwner()->Title, 'localeCode' => $this->getOwner()->Locale]
+        );
 
         $import = PureModal::create('ImportLocale', $buttonTitle, sprintf('<h1>%s</h1>', $modalTitle));
         $import->setIframeAction('ImportModal');
-        $import->addExtraClass('font-icon font-icon-install'); //doesn't work now, see https://github.com/lekoala/silverstripe-pure-modal/issues/12
+        //doesn't work now, see https://github.com/lekoala/silverstripe-pure-modal/issues/12
+        $import->addExtraClass('font-icon font-icon-install');
+
         $actions->push($import);
     }
 
@@ -56,6 +65,7 @@ class LocaleExportImport extends Extension
             $actions->remove($exportAction);
             $actions->push($exportAction);
         }
+
         if ($importAction) {
             //move at the end of the stack to appear on the right side
             $actions->remove($importAction);
@@ -63,7 +73,7 @@ class LocaleExportImport extends Extension
         }
     }
 
-    public function doExport()
+    public function doExport(): never
     {
         /** @var Locale $record */
         $record = $this->getOwner();

@@ -66,5 +66,4 @@ class FluentExport extends BuildTask
         header('Content-Length: ' . filesize($zipFilename));
         readfile($zipFilename);
     }
-
 }
