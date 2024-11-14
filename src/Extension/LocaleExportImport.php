@@ -5,15 +5,9 @@ namespace Netwerkstatt\FluentExIm\Extension;
 use LeKoala\CmsActions\CustomLink;
 use LeKoala\CmsActions\SilverStripeIcons;
 use LeKoala\PureModal\PureModal;
-use LeKoala\PureModal\PureModalAction;
 use Netwerkstatt\FluentExIm\Helper\FluentExportHelper;
-use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\FileField;
-use SilverStripe\Forms\HeaderField;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\TextField;
 use TractorCow\Fluent\Model\Locale;
 
 class LocaleExportImport extends Extension
@@ -42,8 +36,14 @@ class LocaleExportImport extends Extension
             $actions->push($exportAction);
         }
 
-        $import = PureModal::create('ImportLocale', 'Import Translations', 'Some Text');
+        $buttonTitle = _t(self::class . '.IMPORT_MODAL_TITLE', 'Import {locale} Translations',
+            ['locale' => $this->owner->Title]);
+        $modalTitle = _t(self::class . '.IMPORT_MODAL_TITLE', 'Import {locale} ({localeCode})Translations',
+            ['locale' => $this->owner->Title, 'localeCode' => $this->owner->Locale]);
+
+        $import = PureModal::create('ImportLocale', $buttonTitle, sprintf('<h1>%s</h1>', $modalTitle));
         $import->setIframeAction('ImportModal');
+        $import->addExtraClass('font-icon font-icon-install'); //doesn't work now, see https://github.com/lekoala/silverstripe-pure-modal/issues/12
         $actions->push($import);
     }
 

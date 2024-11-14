@@ -23,12 +23,6 @@ class LocaleAdmin extends Extension
         'doImport'
     ];
 
-    public function updateGridFieldConfig(GridFieldConfig $config)
-    {
-//        if ($this->getOwner()->modelClass === Locale::class) {
-//            $config->getComponentByType(GridFieldDetailForm::class)?->setItemRequestClass(LocaleAdmin_ItemRequest::class);
-//        }
-    }
 
     public function ImportModal(HTTPRequest $request): string
     {
@@ -41,13 +35,16 @@ class LocaleAdmin extends Extension
         if (!$ID) {
             return $this->getOwner()->renderWith('SilverStripe\\Admin\\CMSDialog', ['Content' => 'No ID']);
         }
+
         $record = Locale::get()->byID($ID);
         $fields = $this->getImportFields();
         $fields->push(HiddenField::create('ID', 'ID', $ID));
         $fields->push(HiddenField::create('Locale', 'Locale', $record->Locale));
-        $actions = FieldList::create([FormAction::create('doImport', 'Import')]);
-        $form = Form::create($this->getOwner(), 'ImportTranslationsForm', $fields, $actions);
-        return $form;
+        $buttonTitle = _t(self::class . '.IMPORT_MODAL_TITLE', 'Import {locale} Translations', ['locale' => $record->Title]);
+        $importAction = FormAction::create('doImport', $buttonTitle);
+        $importAction->addExtraClass('btn btn-outline-danger font-icon font-icon-upload');
+        $actions = FieldList::create([$importAction]);
+        return Form::create($this->getOwner(), 'ImportTranslationsForm', $fields, $actions);
     }
 
     /**
