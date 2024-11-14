@@ -32,8 +32,7 @@ class LocaleExportImport extends Extension
             $exportAction = CustomLink::create('doExport', _t(self::class . '.DOEXPORT', 'Export Translations'));
             $exportAction->setButtonIcon(SilverStripeIcons::ICON_EXPORT);
             $exportAction->setNoAjax(true);
-            //doesn't work with setNoAjax, see https://github.com/lekoala/silverstripe-cms-actions/issues/40
-//            $exportAction->setConfirmation(_t(self::class . '.EXPORT_CONFIRMATION', 'Export all {locale} translations as yml files in a zip archive?', ['locale' => $this->owner->Locale]));
+            $exportAction->setConfirmation(_t(self::class . '.EXPORT_CONFIRMATION', 'Export all {locale} translations as yml files in a zip archive?', ['locale' => $this->owner->Locale]));
             $actions->push($exportAction);
         }
 
