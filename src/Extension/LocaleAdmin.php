@@ -93,14 +93,36 @@ class LocaleAdmin extends Extension
 
         $file = $data['ImportUpload'];
 
+        if (str_ends_with($file['name'], '.yml')) {
+            $content = file_get_contents($file['tmp_name']);
 
-        $content = file_get_contents($file['tmp_name']);
-
-        try {
-            $count = $this->handleYmlFile($content, $data['Locale']);
-        } catch (\Exception $e) {
-            $form->sessionMessage($e->getMessage(), 'bad');
-            return $this->getOwner()->redirectBack();
+            try {
+                $count = $this->handleYmlFile($content, $data['Locale']);
+            } catch (\Exception $e) {
+                $form->sessionMessage($e->getMessage(), 'bad');
+                return $this->getOwner()->redirectBack();
+            }
+        }
+        if (str_ends_with($file['name'], '.zip')) {
+            $zip = new \ZipArchive();
+            $res = $zip->open($file['tmp_name']);
+            if ($res === true) {
+                $count = 0;
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $filename = $zip->getNameIndex($i);
+                    $content = $zip->getFromName($filename);
+                    try {
+                        $count += $this->handleYmlFile($content, $data['Locale']);
+                    } catch (\Exception $e) {
+                        $form->sessionMessage($e->getMessage(), 'bad');
+                        return $this->getOwner()->redirectBack();
+                    }
+                }
+                $zip->close();
+            } else {
+                $form->sessionMessage('Error opening zip file', 'bad');
+                return $this->getOwner()->redirectBack();
+            }
         }
 
         $form->sessionMessage($count . ' Translations imported', 'good');
