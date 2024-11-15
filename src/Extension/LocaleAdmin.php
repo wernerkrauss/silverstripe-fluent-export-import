@@ -111,6 +111,7 @@ class LocaleAdmin extends Extension
         if (str_ends_with((string) $file['name'], '.zip')) {
             $zip = new \ZipArchive();
             $res = $zip->open($file['tmp_name']);
+            $errorMessages = [];
             if ($res === true) {
                 $count = 0;
                 for ($i = 0; $i < $zip->numFiles; ++$i) {
@@ -119,10 +120,18 @@ class LocaleAdmin extends Extension
                     try {
                         $count += $this->handleYmlFile($content, $data['Locale']);
                     } catch (\Exception $e) {
-                        $form->sessionMessage($e->getMessage(), 'bad');
-                        return $this->getOwner()->redirectBack();
+                        $errorMessages[$filename] = $e->getMessage();
+
                     }
                 }
+
+                if (count($errorMessages) > 0) {
+                    $message = 'Some files could not be imported: '
+                        .implode(" \n", array_map(fn($key, $value) => $key . ': ' . $value, array_keys($errorMessages), $errorMessages));
+                    $form->sessionMessage($message, 'bad');
+                    return $this->getOwner()->redirectBack();
+                }
+
 
                 $zip->close();
             } else {

@@ -66,7 +66,7 @@ class FluentImportHelper
         foreach (array_keys($translationData) as $locale) {
             //check if locale exists and is locale of current object
             if ($locale !== self::$locale) {
-                throw new \RuntimeException('Locale in file does not match locale of current object');
+                throw new \RuntimeException(sprintf('Locale %s in file does not match import locale %s', $locale, self::$locale));
             }
         }
 
