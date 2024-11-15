@@ -116,7 +116,12 @@ class LocaleAdmin extends Extension
                 $count = 0;
                 for ($i = 0; $i < $zip->numFiles; ++$i) {
                     $filename = $zip->getNameIndex($i);
+                    if(str_starts_with($filename, '__MACOSX')) {
+                        continue;
+                    }
+
                     $content = $zip->getFromName($filename);
+
                     try {
                         $count += $this->handleYmlFile($content, $data['Locale']);
                     } catch (\Exception $e) {
@@ -126,8 +131,8 @@ class LocaleAdmin extends Extension
                 }
 
                 if (count($errorMessages) > 0) {
-                    $message = 'Some files could not be imported: '
-                        .implode(" \n", array_map(fn($key, $value) => $key . ': ' . $value, array_keys($errorMessages), $errorMessages));
+                    $message = 'Some files could not be imported: ' . PHP_EOL . PHP_EOL
+                        .implode(PHP_EOL, array_map(fn($key, $value) => $key . ': ' . $value, array_keys($errorMessages), $errorMessages));
                     $form->sessionMessage($message, 'bad');
                     return $this->getOwner()->redirectBack();
                 }
