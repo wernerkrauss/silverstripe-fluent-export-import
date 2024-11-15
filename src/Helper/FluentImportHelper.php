@@ -3,6 +3,7 @@
 namespace Netwerkstatt\FluentExIm\Helper;
 
 use SilverStripe\ORM\DataObject;
+use SilverStripe\Versioned\Versioned;
 use TractorCow\Fluent\Extension\FluentExtension;
 use TractorCow\Fluent\Model\Locale;
 use TractorCow\Fluent\State\FluentState;
@@ -10,6 +11,7 @@ use TractorCow\Fluent\State\FluentState;
 class FluentImportHelper
 {
     private static string $locale = '';
+    private static bool $should_publish = false;
 
     public static function setLocale($locale): void
     {
@@ -50,6 +52,11 @@ class FluentImportHelper
                     }
 
                     $dataObject->write();
+
+                    if (self::$should_publish &&  $dataObject->hasExtension(Versioned::class)) {
+                        /** @var Versioned|DataObject $dataObject */
+                        $dataObject->publishSingle();
+                    }
                 });
             $translated[] = $dataObject;
         }
@@ -71,5 +78,10 @@ class FluentImportHelper
         }
 
         return true;
+    }
+
+    public static function setShouldPublish(bool $shouldPublish)
+    {
+        self::$should_publish = $shouldPublish;
     }
 }

@@ -5,6 +5,7 @@ namespace Netwerkstatt\FluentExIm\Extension;
 use Netwerkstatt\FluentExIm\Helper\FluentImportHelper;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Extension;
+use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\FileField;
 use SilverStripe\Forms\Form;
@@ -81,9 +82,12 @@ class LocaleAdmin extends Extension
         $upload = FileField::create('ImportUpload', _t(self::class . '.IMPORTUPLOAD', 'Upload translations'));
         $upload->setAllowedExtensions(['yml', 'zip']);
 
+        $shouldPublish = CheckboxField::create('ShouldPublish', _t(self::class . '.SHOULDPUBLISH', 'Publish imported translations'));
+
         return FieldList::create([
             $info,
-            $upload
+            $upload,
+            $shouldPublish
         ]);
     }
 
@@ -95,13 +99,14 @@ class LocaleAdmin extends Extension
         }
 
         $file = $data['ImportUpload'];
+        $shouldPublish = array_key_exists('ShouldPublish', $data) && $data['ShouldPublish'] === '1';
 
         $count = 0;
         if (str_ends_with((string) $file['name'], '.yml')) {
             $content = file_get_contents($file['tmp_name']);
 
             try {
-                $count = $this->handleYmlFile($content, $data['Locale']);
+                $count = $this->handleYmlFile($content, $data['Locale'], $shouldPublish);
             } catch (\Exception $e) {
                 $form->sessionMessage($e->getMessage(), 'bad');
                 return $this->getOwner()->redirectBack();
@@ -116,23 +121,22 @@ class LocaleAdmin extends Extension
                 $count = 0;
                 for ($i = 0; $i < $zip->numFiles; ++$i) {
                     $filename = $zip->getNameIndex($i);
-                    if(str_starts_with($filename, '__MACOSX')) {
+                    if (str_starts_with($filename, '__MACOSX')) {
                         continue;
                     }
 
                     $content = $zip->getFromName($filename);
 
                     try {
-                        $count += $this->handleYmlFile($content, $data['Locale']);
+                        $count += $this->handleYmlFile($content, $data['Locale'], $shouldPublish);
                     } catch (\Exception $e) {
                         $errorMessages[$filename] = $e->getMessage();
-
                     }
                 }
 
-                if (count($errorMessages) > 0) {
+                if ($errorMessages !== []) {
                     $message = 'Some files could not be imported: ' . PHP_EOL . PHP_EOL
-                        .implode(PHP_EOL, array_map(fn($key, $value) => $key . ': ' . $value, array_keys($errorMessages), $errorMessages));
+                        . implode(PHP_EOL, array_map(static fn($key, $value) => $key . ': ' . $value, array_keys($errorMessages), $errorMessages));
                     $form->sessionMessage($message, 'bad');
                     return $this->getOwner()->redirectBack();
                 }
@@ -149,10 +153,11 @@ class LocaleAdmin extends Extension
         return $this->getOwner()->redirectBack();
     }
 
-    public function handleYmlFile(string $content, string $locale): int
+    public function handleYmlFile(string $content, string $locale, bool $shouldPublish = false): int
     {
         $translationData = Yaml::parse($content);
         FluentImportHelper::setLocale($locale);
+        FluentImportHelper::setShouldPublish($shouldPublish);
         FluentImportHelper::validateLocaleTranslationData($translationData);
         $translated = [];
         foreach ($translationData as $classes) {
