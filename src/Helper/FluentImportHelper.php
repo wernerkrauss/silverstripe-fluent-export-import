@@ -11,6 +11,7 @@ use TractorCow\Fluent\State\FluentState;
 class FluentImportHelper
 {
     private static string $locale = '';
+
     private static bool $should_publish = false;
 
     public static function setLocale($locale): void

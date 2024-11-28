@@ -22,6 +22,7 @@
         "issues": "https://github.com/wernerkrauss/silverstripe-fluent-export-import/issues"
     },
     "require": {
+        "php": "^8.2",
         "ext-zip": "*",
         "silverstripe/framework": "^5",
         "tractorcow/silverstripe-fluent": "^7",
