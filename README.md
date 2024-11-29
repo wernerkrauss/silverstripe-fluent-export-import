@@ -23,6 +23,15 @@ SilverStripe\CMS\Model\SiteTree:
     - URLSegment
 ```
 
+## Automatic Translation
+You can use the ChatGPT API to translate your content. To do so, you need to set the API key in your .env file:
+
+```
+CHATGPT_API_KEY=your-api-key
+```
+
+Then you can run the task `dev/tasks/fluent-translate` to translate all content to the desired locale.
+
 
 ## Todo
 - [X] Export translations to YML
