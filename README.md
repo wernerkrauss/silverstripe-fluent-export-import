@@ -30,7 +30,29 @@ You can use the ChatGPT API to translate your content. To do so, you need to set
 CHATGPT_API_KEY=your-api-key
 ```
 
-Then you can run the task `dev/tasks/fluent-translate` to translate all content to the desired locale.
+Next add extension to all classes you want to translate:
+
+```yml
+# SiteTree has already fluent applied
+SilverStripe\CMS\Model\SiteTree:
+  extensions:
+    autotranslate: Netwerkstatt\FluentExIm\Extension\AutoTranslate
+
+My\Namespace\Model\Foo:
+    extensions:
+        fluent: TractorCow\Fluent\Extension\FluentExtension
+        autotranslate: Netwerkstatt\FluentExIm\Extension\AutoTranslat
+# if you have configured translations, make sure to add IsAutoTranslated and LastTranslation manually
+    translate:
+        - IsAutoTranslated
+        - LastTranslation
+```
+Then you can run the task `dev/tasks/fluent-ai-autotranslate` to translate all content to the desired locale.
+
+If IsAutoTranslated of LastTranslation is missing in localised fields, the task will throw a RuntimeException.
+
+⚠️ Be aware, that some extensions of other modules might add `translated` config to a class. 
+
 
 
 ## Todo
@@ -42,7 +64,7 @@ Then you can run the task `dev/tasks/fluent-translate` to translate all content 
 - [ ] documentation how to ask ChatGPT to translate in a correct way
 
 ## Thanks to
-Thanks to [Nobrainer](https://www.nobrainer.dk/) for sponsoring this module ❤️.
+Thanks to [Nobrainer](https://www.nobrainer.dk/) and [Adiwidjaja Teamworks](https://www.adiwidjaja.com/) for sponsoring this module ❤️.
 
 A special thank you to [Lekoala](https://github.com/lekoala) for the support with his CMS-Actions and PureModal modules.
 
