@@ -10,6 +10,9 @@ use TractorCow\Fluent\State\FluentState;
 
 class AIAutoTranslate extends BuildTask
 {
+    /**
+     * @config
+     */
     private static $segment = 'fluent-ai-autotranslate';
 
 
@@ -59,11 +62,10 @@ class AIAutoTranslate extends BuildTask
             if (!$fluentClass->hasExtension(AutoTranslate::class)) {
                 continue;
             }
+
             $translatableItems = FluentState::singleton()
                 ->setLocale($defaultLocale)
-                ->withState(static function (FluentState $state) use ($fluentClass) {
-                    return $fluentClass::get();
-                });
+                ->withState(static fn(FluentState $state) => $fluentClass::get());
             foreach ($translatableItems as $translatableItem) {
                 $translatableItem = $translatableItem->fixLastTranslationForDefaultLocale();
                 $translatableItem->autoTranslate($doPublish);

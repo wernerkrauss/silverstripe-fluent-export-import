@@ -17,11 +17,17 @@ use TractorCow\Fluent\State\FluentState;
 
 class AutoTranslate extends DataExtension
 {
+    /**
+     * @config
+     */
     private static $db = [
         'IsAutoTranslated' => 'Boolean',
         'LastTranslation' => 'Datetime',
     ];
 
+    /**
+     * @config
+     */
     private static $field_include = [
         'IsAutoTranslated',
         //LastTranslation timestamp is used in default locale to mark a change; in other locales to remember the time of translation
@@ -36,18 +42,21 @@ class AutoTranslate extends DataExtension
         }
     }
 
-    public function updateCMSFields(FieldList $fields)
+    public function updateCMSFields(FieldList $fields): void
     {
         $fields->removeByName('LastTranslation');
         if ($this->hasDefaultLocale()) {
             $fields->removeByName('IsAutoTranslated');
         }
+
         if (!$this->hasDefaultLocale()) {
             $isAutoTranslated = $fields->dataFieldByName('IsAutoTranslated');
             if (!$isAutoTranslated) {
                 $isAutoTranslated = CheckboxField::create('IsAutoTranslated');
             }
-            $isAutoTranslated->setTitle($this->getOwner()->fieldLabel('IsAutoTranslated') . '; Last Translation: ' . $this->getOwner()->dbObject('LastTranslation')->Nice());
+
+            $lastTranslation = DBDateTime::create($this->getOwner()->LastTranslation);
+            $isAutoTranslated->setTitle($this->getOwner()->fieldLabel('IsAutoTranslated') . '; Last Translation: ' . $lastTranslation->Nice());
             $fields->insertAfter('Title', $isAutoTranslated);
         }
     }
@@ -63,13 +72,14 @@ class AutoTranslate extends DataExtension
     {
         $this->checkIfAutoTranslateFieldsAreTranslatable();
 
+        /** @var DataObject $owner */
         $owner = $this->getOwner();
         if (!$this->hasDefaultLocale()) {
             return;
         }
 
         $data = $this->getTranslatableFields();
-        if (empty($data)) {
+        if ($data === []) {
             return;
         }
 
@@ -80,6 +90,7 @@ class AutoTranslate extends DataExtension
         if (!$apiKey) {
             throw new \RuntimeException('No API Key found');
         }
+
         $translator = new ChatGPTTranslator($apiKey);
 
         foreach (Locale::get()->exclude(['Locale' => Locale::getDefault()->Locale]) as $locale) {
@@ -87,13 +98,12 @@ class AutoTranslate extends DataExtension
             //get translated dataobject
             $translatedObject = FluentState::singleton()
                 ->setLocale($locale->Locale)
-                ->withState(function (FluentState $state) use ($owner) {
-                    return $owner::get()->byID($owner->ID);
-                });
+                ->withState(static fn(FluentState $state) => DataObject::get($owner->ClassName)->byID($owner->ID));
             //if translated do is newer than original, do not translate. It is already translated
             if ($translatedObject->LastTranslation > $owner->LastTranslation) {
                 continue;
             }
+
             //if translated do is not set to auto translate, do not translate as it was edited manually
             if ($existsInLocale && !$translatedObject->IsAutoTranslated) {
                 continue;
@@ -115,29 +125,34 @@ class AutoTranslate extends DataExtension
             $translatedObject->LastTranslation = DBDatetime::now()->getValue();
             $translatedObject->write();
 
-            if ($doPublish &&  $translatedObject->hasExtension(Versioned::class) && $this->getOwner()->isPublished()) {
-                /** @var Versioned|DataObject $dataObject */
+            if ($doPublish && $translatedObject->hasExtension(Versioned::class) && $this->getOwner()->isPublished()) {
+                /** @var Versioned|DataObject $translatedObject */
                 $translatedObject->publishSingle();
             }
         }
     }
 
 
-//get all fields that are translatable as array
+    /**
+     * get all fields that are translatable
+     * @return array
+     */
     public function getTranslatableFields(): array
     {
         $fields = FluentHelper::getLocalisedDataFromDataObject($this->getOwner(), $this->getOwner()->Locale);
         if (array_key_exists('ID', $fields)) {
             unset($fields['ID']);
         }
+
         if (array_key_exists('LastTranslation', $fields)) {
             unset($fields['LastTranslation']);
         }
+
         unset($fields['IsAutoTranslated']);
         return $fields;
     }
 
-    public function hasDefaultLocale()
+    public function hasDefaultLocale(): bool
     {
         return $this->getOwner()->Locale === Locale::getDefault()->Locale;
     }
@@ -152,6 +167,7 @@ class AutoTranslate extends DataExtension
         if (!$this->getOwner()->hasExtension(FluentExtension::class)) {
             throw new \RuntimeException($this->getOwner()->ClassName . ' does not have FluentExtension');
         }
+
         foreach (['IsAutoTranslated', 'LastTranslation'] as $field) {
             $isLocalised = false;
             foreach ($this->getOwner()->getLocalisedTables() as $localisedTable) {
@@ -159,6 +175,7 @@ class AutoTranslate extends DataExtension
                     $isLocalised = true;
                 }
             }
+
             if (!$isLocalised) {
                 throw new \RuntimeException($this->getOwner()->ClassName . ' does not have ' . $field . ' as translatable field');
             }
@@ -178,10 +195,11 @@ class AutoTranslate extends DataExtension
             $owner->LastTranslation = $owner->LastEdited;
             $owner->write();
             if ($owner->hasExtension(Versioned::class) && $owner->isPublished()) {
-                /** @var Versioned|DataObject $dataObject */
+                /** @var Versioned|DataObject $owner */
                 $owner->publishSingle();
             }
         }
+
         return $owner;
     }
 }

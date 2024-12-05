@@ -54,11 +54,10 @@ class FluentImportHelper
 
                     $validationResult = $dataObject->validate();
                     if (!$validationResult->isValid()) {
-                        $messages = implode(', ', array_map(static function ($message) {
-                            return $message['message'];
-                        }, $validationResult->getMessages()));
+                        $messages = implode(', ', array_map(static fn($message) => $message['message'], $validationResult->getMessages()));
                         throw new \RuntimeException('Validation failed for ' . $dataObject->ClassName . ' with ID ' . $dataObject->ID . ': ' . $messages);
                     }
+
                     $dataObject->write();
 
                     if (self::$should_publish &&  $dataObject->hasExtension(Versioned::class)) {

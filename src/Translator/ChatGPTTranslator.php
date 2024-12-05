@@ -4,7 +4,6 @@ namespace Netwerkstatt\FluentExIm\Translator;
 
 use Netwerkstatt\FluentExIm\Translator\Translatable;
 
-
 class ChatGPTTranslator implements Translatable
 {
     private $client;
@@ -26,7 +25,7 @@ class ChatGPTTranslator implements Translatable
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => "You are a professional translator. Translate the following text to {$targetLocale} language."
+                    'content' => sprintf('You are a professional translator. Translate the following text to %s language.', $targetLocale)
                 ],
                 [
                     'role' => 'user',
