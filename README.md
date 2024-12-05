@@ -47,9 +47,16 @@ My\Namespace\Model\Foo:
         - IsAutoTranslated
         - LastTranslation
 ```
-Then you can run the task `dev/tasks/fluent-ai-autotranslate` to translate all content to the desired locale.
+
+### fluent-ai-autotranslate task
+When everything is configured properly you can run the task `dev/tasks/fluent-ai-autotranslate do_publish=1` to translate all content to the desired locale.
 
 If IsAutoTranslated of LastTranslation is missing in localised fields, the task will throw a RuntimeException.
+
+#### Parameters:
+* `do_publish` (required): If set to 1, the task will publish the translated content.
+
+
 
 ⚠️ Be aware, that some extensions of other modules might add `translated` config to a class. 
 

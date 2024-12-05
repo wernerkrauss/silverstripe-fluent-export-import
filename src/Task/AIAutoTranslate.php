@@ -4,11 +4,7 @@ namespace Netwerkstatt\FluentExIm\Task;
 
 use Netwerkstatt\FluentExIm\Extension\AutoTranslate;
 use Netwerkstatt\FluentExIm\Helper\FluentHelper;
-use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\ORM\DataObject;
-use SilverStripe\SiteConfig\SiteConfig;
-use TractorCow\Fluent\Extension\FluentExtension;
 use TractorCow\Fluent\Model\Locale;
 use TractorCow\Fluent\State\FluentState;
 
@@ -52,6 +48,11 @@ class AIAutoTranslate extends BuildTask
             throw new \RuntimeException('Please run this task in default locale');
         }
 
+        $doPublish = $request->getVar('do_publish');
+        if ($doPublish === null) {
+            throw new \InvalidArgumentException('Please provide do_publish parameter. 1 will publish all translated objects, 0 will only write to stage');
+        }
+
         $fluentClasses = FluentHelper::getFluentClasses();
         foreach ($fluentClasses as $fluentClassName) {
             $fluentClass = singleton($fluentClassName);
@@ -64,7 +65,8 @@ class AIAutoTranslate extends BuildTask
                     return $fluentClass::get();
                 });
             foreach ($translatableItems as $translatableItem) {
-                $translatableItem->autoTranslate();
+                $translatableItem = $translatableItem->fixLastTranslationForDefaultLocale();
+                $translatableItem->autoTranslate($doPublish);
             }
         }
     }

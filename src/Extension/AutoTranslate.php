@@ -8,7 +8,9 @@ use SilverStripe\Core\Environment;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\Versioned\Versioned;
 use TractorCow\Fluent\Extension\FluentExtension;
 use TractorCow\Fluent\Model\Locale;
 use TractorCow\Fluent\State\FluentState;
@@ -57,7 +59,7 @@ class AutoTranslate extends DataExtension
      * @todo: currently only chatgpt is supported, make it more generic
      *
      */
-    public function autoTranslate()
+    public function autoTranslate(bool $doPublish = false)
     {
         $this->checkIfAutoTranslateFieldsAreTranslatable();
 
@@ -89,7 +91,7 @@ class AutoTranslate extends DataExtension
                     return $owner::get()->byID($owner->ID);
                 });
             //if translated do is newer than original, do not translate. It is already translated
-            if ($translatedObject->LastTranslation > $owner->LastEdited) {
+            if ($translatedObject->LastTranslation > $owner->LastTranslation) {
                 continue;
             }
             //if translated do is not set to auto translate, do not translate as it was edited manually
@@ -112,6 +114,11 @@ class AutoTranslate extends DataExtension
             $translatedObject->IsAutoTranslated = true;
             $translatedObject->LastTranslation = DBDatetime::now()->getValue();
             $translatedObject->write();
+
+            if ($doPublish &&  $translatedObject->hasExtension(Versioned::class) && $this->getOwner()->isPublished()) {
+                /** @var Versioned|DataObject $dataObject */
+                $translatedObject->publishSingle();
+            }
         }
     }
 
@@ -137,8 +144,8 @@ class AutoTranslate extends DataExtension
 
     /**
      * Check if the required fields are configured as translated fields
-     * @throws \RuntimeException
      * @return void
+     * @throws \RuntimeException
      */
     public function checkIfAutoTranslateFieldsAreTranslatable()
     {
@@ -156,5 +163,25 @@ class AutoTranslate extends DataExtension
                 throw new \RuntimeException($this->getOwner()->ClassName . ' does not have ' . $field . ' as translatable field');
             }
         }
+    }
+
+    /**
+     * When this module is added to an existing project, the LastTranslation field is not set for existing objects.
+     * If not set, the object will be translated all the time, as LastEdited is not localised.
+     *
+     * @return DataObject
+     */
+    public function fixLastTranslationForDefaultLocale(): DataObject
+    {
+        $owner = $this->getOwner();
+        if ($this->hasDefaultLocale() && $owner->LastTranslation === null) {
+            $owner->LastTranslation = $owner->LastEdited;
+            $owner->write();
+            if ($owner->hasExtension(Versioned::class) && $owner->isPublished()) {
+                /** @var Versioned|DataObject $dataObject */
+                $owner->publishSingle();
+            }
+        }
+        return $owner;
     }
 }
