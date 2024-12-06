@@ -3,6 +3,7 @@
 namespace Netwerkstatt\FluentExIm\Extension;
 
 use Netwerkstatt\FluentExIm\Helper\FluentHelper;
+use Netwerkstatt\FluentExIm\Translator\AITranslationStatus;
 use Netwerkstatt\FluentExIm\Translator\ChatGPTTranslator;
 use SilverStripe\Core\Environment;
 use SilverStripe\Forms\CheckboxField;
@@ -64,23 +65,23 @@ class AutoTranslate extends DataExtension
     /**
      * @throws \RuntimeException
      * @throws \JsonException
-     * @todo: return some status message for AIAutoTranslate task
      * @todo: currently only chatgpt is supported, make it more generic
      *
      */
-    public function autoTranslate(bool $doPublish = false)
+    public function autoTranslate(bool $doPublish = false): AITranslationStatus
     {
         $this->checkIfAutoTranslateFieldsAreTranslatable();
+        $status = new AITranslationStatus($this->getOwner());
 
         /** @var DataObject $owner */
         $owner = $this->getOwner();
         if (!$this->hasDefaultLocale()) {
-            return;
+            return $status->setStatus(AITranslationStatus::ERROR)->setMessage('Item not in default locale');
         }
 
         $data = $this->getTranslatableFields();
         if ($data === []) {
-            return;
+            return $status->setStatus(AITranslationStatus::ERROR)->setMessage('No translatable fields found');
         }
 
         $json = json_encode($data, JSON_THROW_ON_ERROR);
@@ -101,22 +102,29 @@ class AutoTranslate extends DataExtension
                 ->withState(static fn(FluentState $state) => DataObject::get($owner->ClassName)->byID($owner->ID));
             //if translated do is newer than original, do not translate. It is already translated
             if ($translatedObject->LastTranslation > $owner->LastTranslation) {
+                $status->addLocale($locale->Locale, AITranslationStatus::ALREADYTRANSLATED);
                 continue;
             }
 
             //if translated do is not set to auto translate, do not translate as it was edited manually
             if ($existsInLocale && !$translatedObject->IsAutoTranslated) {
+                $status->addLocale($locale->Locale, AITranslationStatus::NOTAUTOTRANSLATED);
                 continue;
             }
 
-            $translatedData = $translator->translate($json, $locale->Locale);
-            $translatedData = json_decode($translatedData, true);
+            $translatedDataOrig = $translator->translate($json, $locale->Locale);
+            $translatedData = json_decode($translatedDataOrig, true);
 
             if (!$translatedData) {
+                $status->addLocale($locale->Locale, AITranslationStatus::NOTHINGTOTRANSLATE);
                 continue;
             }
 
             if (!is_array($translatedData)) {
+                $status->addLocale($locale->Locale, AITranslationStatus::ERROR);
+                $status->setSource($json);
+                $status->setAiResponse($translatedDataOrig);
+                $status->setData($translatedData);
                 continue;
             }
 
@@ -128,8 +136,13 @@ class AutoTranslate extends DataExtension
             if ($doPublish && $translatedObject->hasExtension(Versioned::class) && $this->getOwner()->isPublished()) {
                 /** @var Versioned|DataObject $translatedObject */
                 $translatedObject->publishSingle();
+                $status->addLocale($locale->Locale, AITranslationStatus::PUBLISHED);
+            } else {
+                $status->addLocale($locale->Locale, AITranslationStatus::TRANSLATED);
             }
+
         }
+        return $status;
     }
 
 
