@@ -5,6 +5,7 @@ namespace Netwerkstatt\FluentExIm\Extension;
 use Netwerkstatt\FluentExIm\Helper\FluentHelper;
 use Netwerkstatt\FluentExIm\Translator\AITranslationStatus;
 use Netwerkstatt\FluentExIm\Translator\ChatGPTTranslator;
+use Netwerkstatt\FluentExIm\Translator\Translatable;
 use SilverStripe\Core\Environment;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
@@ -95,52 +96,11 @@ class AutoTranslate extends DataExtension
         $translator = new ChatGPTTranslator($apiKey);
 
         foreach (Locale::get()->exclude(['Locale' => Locale::getDefault()->Locale]) as $locale) {
-            $existsInLocale = $this->getOwner()->existsInLocale($locale->Locale);
-            //get translated dataobject
-            $translatedObject = FluentState::singleton()
-                ->setLocale($locale->Locale)
-                ->withState(static fn(FluentState $state) => DataObject::get($owner->ClassName)->byID($owner->ID));
-            //if translated do is newer than original, do not translate. It is already translated
-            if ($translatedObject->LastTranslation > $owner->LastTranslation) {
-                $status->addLocale($locale->Locale, AITranslationStatus::ALREADYTRANSLATED);
-                continue;
-            }
-
-            //if translated do is not set to auto translate, do not translate as it was edited manually
-            if ($existsInLocale && !$translatedObject->IsAutoTranslated) {
-                $status->addLocale($locale->Locale, AITranslationStatus::NOTAUTOTRANSLATED);
-                continue;
-            }
-
-            $translatedDataOrig = $translator->translate($json, $locale->Locale);
-            $translatedData = json_decode($translatedDataOrig, true);
-
-            if (!$translatedData) {
-                $status->addLocale($locale->Locale, AITranslationStatus::NOTHINGTOTRANSLATE);
-                continue;
-            }
-
-            if (!is_array($translatedData)) {
-                $status->addLocale($locale->Locale, AITranslationStatus::ERROR);
-                $status->setSource($json);
-                $status->setAiResponse($translatedDataOrig);
-                $status->setData($translatedData);
-                continue;
-            }
-
-            $translatedObject->update($translatedData);
-            $translatedObject->IsAutoTranslated = true;
-            $translatedObject->LastTranslation = DBDatetime::now()->getValue();
-            $translatedObject->write();
-
-            if ($doPublish && $translatedObject->hasExtension(Versioned::class) && $this->getOwner()->isPublished()) {
-                /** @var Versioned|DataObject $translatedObject */
-                $translatedObject->publishSingle();
-                $status->addLocale($locale->Locale, AITranslationStatus::PUBLISHED);
-            } else {
-                $status->addLocale($locale->Locale, AITranslationStatus::TRANSLATED);
-            }
-
+            $status = FluentState::singleton()
+                ->withState(function (FluentState $state) use ($locale, $translator, $status, $json, $doPublish) {
+                    $state->setLocale($locale->Locale);
+                    return $this->performTranslation($translator, $status, $locale, $json, $doPublish);
+                });
         }
         return $status;
     }
@@ -214,5 +174,61 @@ class AutoTranslate extends DataExtension
         }
 
         return $owner;
+    }
+
+    private function performTranslation(
+        Translatable $translator,
+        AITranslationStatus $status,
+        Locale $locale,
+        false|string $json,
+        bool $doPublish
+    ): AITranslationStatus {
+        $owner = $this->getOwner();
+        $existsInLocale = $owner->existsInLocale($locale->Locale);
+        //get translated dataobject
+        /** @var DataObject $translatedObject */
+        $translatedObject = DataObject::get($owner->ClassName)->byID($owner->ID);
+
+        //if translated do is newer than original, do not translate. It is already translated
+        if ($existsInLocale && $translatedObject->LastTranslation > $owner->LastTranslation) {
+            $status->addLocale($locale->Locale, AITranslationStatus::ALREADYTRANSLATED);
+            return $status;
+        }
+
+        //if translated do is not set to auto translate, do not translate as it was edited manually
+        if ($existsInLocale && !$translatedObject->IsAutoTranslated) {
+            $status->addLocale($locale->Locale, AITranslationStatus::NOTAUTOTRANSLATED);
+            return $status;
+        }
+
+        $translatedDataOrig = $translator->translate($json, $locale->Locale);
+        $translatedData = json_decode($translatedDataOrig, true);
+
+        if (!$translatedData) {
+            $status->addLocale($locale->Locale, AITranslationStatus::NOTHINGTOTRANSLATE);
+            return $status;
+        }
+
+        if (!is_array($translatedData)) {
+            $status->addLocale($locale->Locale, AITranslationStatus::ERROR);
+            $status->setSource($json);
+            $status->setAiResponse($translatedDataOrig);
+            $status->setData($translatedData);
+            return $status;
+        }
+
+        $translatedObject->update($translatedData);
+        $translatedObject->IsAutoTranslated = true;
+        $translatedObject->LastTranslation = DBDatetime::now()->getValue();
+        $translatedObject->write();
+
+        if ($doPublish && $translatedObject->hasExtension(Versioned::class) && $owner->isPublished()) {
+            /** @var Versioned|DataObject $translatedObject */
+            $translatedObject->publishSingle();
+            $status->addLocale($locale->Locale, AITranslationStatus::PUBLISHED);
+        } else {
+            $status->addLocale($locale->Locale, AITranslationStatus::TRANSLATED);
+        }
+        return $status;
     }
 }
