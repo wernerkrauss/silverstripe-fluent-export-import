@@ -37,7 +37,7 @@ class AutoTranslate extends DataExtension
 
     public function onBeforeWrite()
     {
-        if ($this->hasDefaultLocale() && $this->getOwner()->isChanged()) {
+        if ($this->getOwner()->Locale && $this->hasDefaultLocale() && $this->getOwner()->isChanged()) {
             $this->getOwner()->LastTranslation = DBDatetime::now()->getValue();
         }
     }
