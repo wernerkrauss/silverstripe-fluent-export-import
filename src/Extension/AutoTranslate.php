@@ -58,9 +58,11 @@ class AutoTranslate extends DataExtension
                 $isAutoTranslated = CheckboxField::create('IsAutoTranslated');
             }
 
-            $lastTranslation = DBDateTime::create($this->getOwner()->LastTranslation);
-            $isAutoTranslated->setTitle($this->getOwner()->fieldLabel('IsAutoTranslated') . '; Last Translation: ' . $lastTranslation->Nice());
-            $fields->insertAfter('Title', $isAutoTranslated);
+            if ($this->getOwner()->LastTranslation) {
+                $lastTranslation = DBDateTime::create()->setValue($this->getOwner()->LastTranslation);
+                $isAutoTranslated->setTitle($this->getOwner()->fieldLabel('IsAutoTranslated') . '; Last Translation: ' . $lastTranslation->Nice());
+                $fields->insertAfter('Title', $isAutoTranslated);
+            }
         }
     }
 
