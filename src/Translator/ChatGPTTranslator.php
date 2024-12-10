@@ -2,8 +2,6 @@
 
 namespace Netwerkstatt\FluentExIm\Translator;
 
-use Netwerkstatt\FluentExIm\Translator\Translatable;
-
 class ChatGPTTranslator implements Translatable
 {
     private $client;
@@ -18,6 +16,13 @@ class ChatGPTTranslator implements Translatable
         return $this->client->models()->list();
     }
 
+    /**
+     * @todo make system message to ChatGPT configurable
+     *
+     * @param string $text
+     * @param string $targetLocale
+     * @return string
+     */
     public function translate(string $text, string $targetLocale): string
     {
         $response = $this->client->chat()->create([
@@ -25,7 +30,8 @@ class ChatGPTTranslator implements Translatable
             'messages' => [
                 [
                     'role' => 'system',
-                    'content' => sprintf('You are a professional translator. Translate the following text to %s language.', $targetLocale)
+                    'content' => sprintf('You are a professional translator. Translate the following text to %s language.
+                    Please keep the json format intact.', $targetLocale)
                 ],
                 [
                     'role' => 'user',
