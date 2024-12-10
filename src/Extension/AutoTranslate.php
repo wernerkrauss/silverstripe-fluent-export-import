@@ -14,6 +14,7 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\Versioned\Versioned;
 use TractorCow\Fluent\Extension\FluentExtension;
+use TractorCow\Fluent\Extension\FluentVersionedExtension;
 use TractorCow\Fluent\Model\Locale;
 use TractorCow\Fluent\State\FluentState;
 
@@ -222,7 +223,10 @@ class AutoTranslate extends DataExtension
         $translatedObject->LastTranslation = DBDatetime::now()->getValue();
         $translatedObject->write();
 
-        if ($doPublish && $translatedObject->hasExtension(Versioned::class) && $owner->isPublished()) {
+        $isPublishableObject = $translatedObject->hasExtension(Versioned::class) && $owner->hasExtension(FluentVersionedExtension::class);
+        $ownerIsPublished = $isPublishableObject && $owner->isPublishedInLocale($owner->Locale);
+
+        if ($doPublish && $isPublishableObject && $ownerIsPublished) {
             /** @var Versioned|DataObject $translatedObject */
             $translatedObject->publishSingle();
             $status->addLocale($locale->Locale, AITranslationStatus::PUBLISHED);

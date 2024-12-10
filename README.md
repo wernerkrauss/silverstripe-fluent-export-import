@@ -53,6 +53,8 @@ When everything is configured properly you can run the task `dev/tasks/fluent-ai
 
 If IsAutoTranslated of LastTranslation is missing in localised fields, the task will throw a RuntimeException.
 
+Notice: the task can only publish translated content, if you use `FluentVersionedExtension` instead of `FluentExtension` on the versioned DataObjects.
+
 #### Parameters:
 * `do_publish` (required): If set to 1, the task will publish the translated content.
 
