@@ -48,6 +48,25 @@ My\Namespace\Model\Foo:
         - LastTranslation
 ```
 
+### Configuring ChatGPT
+You can configure the ChatGPT API in your config.yml:
+
+```yml
+Netwerkstatt\FluentExIm\Translator\ChatGPTTranslator:
+  gpt_model: gpt-4o-mini
+  # %s will be replaced with the target locale
+  gpt_command: 'You are a professional translator. Translate the following text to %s language. Please keep the json format intact.'
+```
+
+If you need to configure the gpt_command more dynamically, you can use the following code in an Extension to `ChatGPTTranslator`:
+
+```php
+public function updateGptCommand(&$command, $locale)
+{
+    $command = 'You are a professional translator. Translate the following text to ' . $locale . ' language. Please keep the json format intact.';
+}
+```
+
 ### fluent-ai-autotranslate task
 When everything is configured properly you can run the task `dev/tasks/fluent-ai-autotranslate do_publish=1` to translate all content to the desired locale.
 
