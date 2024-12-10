@@ -14,6 +14,7 @@ use Netwerkstatt\FluentExIm\Translator\AITranslationStatus;
 use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\ORM\DataObject;
 use TractorCow\Fluent\Model\Locale;
 use TractorCow\Fluent\State\FluentState;
 
@@ -82,6 +83,12 @@ class AIAutoTranslate extends BuildTask
             if (!$fluentClass->hasExtension(AutoTranslate::class)) {
                 continue;
             }
+
+            if (get_parent_class($fluentClass) !== DataObject::class) {
+                //fluent should only be applied to base classes
+                continue;
+            }
+            echo PHP_EOL . '** ' . $fluentClass->singular_name() . ' **' . PHP_EOL;
 
             $translatableItems = FluentState::singleton()
                 ->setLocale($defaultLocale)
