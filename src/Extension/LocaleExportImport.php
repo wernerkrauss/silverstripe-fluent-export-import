@@ -49,8 +49,6 @@ class LocaleExportImport extends Extension
 
         $import = PureModal::create('ImportLocale', $buttonTitle, sprintf('<h1>%s</h1>', $modalTitle));
         $import->setIframeAction('ImportModal');
-        //doesn't work now, see https://github.com/lekoala/silverstripe-pure-modal/issues/12
-        $import->addExtraClass('font-icon font-icon-install');
         $import->setButtonIcon(SilverStripeIcons::ICON_INSTALL);
 
         $actions->push($import);
