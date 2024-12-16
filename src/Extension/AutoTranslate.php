@@ -72,7 +72,7 @@ class AutoTranslate extends DataExtension
      * @todo: currently only chatgpt is supported, make it more generic
      *
      */
-    public function autoTranslate(bool $doPublish = false): AITranslationStatus
+    public function autoTranslate(bool $doPublish = false, bool $forceTranslation = false): AITranslationStatus
     {
         $this->checkIfAutoTranslateFieldsAreTranslatable();
         $status = new AITranslationStatus($this->getOwner());
@@ -100,9 +100,9 @@ class AutoTranslate extends DataExtension
 
         foreach (Locale::get()->exclude(['Locale' => Locale::getDefault()->Locale]) as $locale) {
             $status = FluentState::singleton()
-                ->withState(function (FluentState $state) use ($locale, $translator, $status, $json, $doPublish) {
+                ->withState(function (FluentState $state) use ($locale, $translator, $status, $json, $doPublish, $forceTranslation) {
                     $state->setLocale($locale->Locale);
-                    return $this->performTranslation($translator, $status, $locale, $json, $doPublish);
+                    return $this->performTranslation($translator, $status, $locale, $json, $doPublish, $forceTranslation);
                 });
         }
         return $status;
@@ -184,7 +184,8 @@ class AutoTranslate extends DataExtension
         AITranslationStatus $status,
         Locale $locale,
         false|string $json,
-        bool $doPublish
+        bool $doPublish = false,
+        bool $forceTranslation = false
     ): AITranslationStatus {
         $owner = $this->getOwner();
         $existsInLocale = $owner->existsInLocale($locale->Locale);
@@ -193,7 +194,7 @@ class AutoTranslate extends DataExtension
         $translatedObject = DataObject::get($owner->ClassName)->byID($owner->ID);
 
         //if translated do is newer than original, do not translate. It is already translated
-        if ($existsInLocale && $translatedObject->LastTranslation > $owner->LastTranslation) {
+        if ($existsInLocale && $translatedObject->LastTranslation > $owner->LastTranslation && !$forceTranslation) {
             $status->addLocale($locale->Locale, AITranslationStatus::ALREADYTRANSLATED);
             return $status;
         }

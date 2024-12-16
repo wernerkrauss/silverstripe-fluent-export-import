@@ -72,7 +72,9 @@ class AIAutoTranslate extends BuildTask
             throw new \RuntimeException('Please run this task in default locale');
         }
 
-        $doPublish = $request->getVar('do_publish');
+        $doPublish = (bool) $request->getVar('do_publish');
+        $forceTranslation = (bool) $request->getVar('force_translation');
+
         if ($doPublish === null) {
             throw new \InvalidArgumentException('Please provide do_publish parameter. 1 will publish all translated objects, 0 will only write to stage');
         }
@@ -95,7 +97,7 @@ class AIAutoTranslate extends BuildTask
                 ->withState(static fn(FluentState $state) => $fluentClass::get());
             foreach ($translatableItems as $translatableItem) {
                 $translatableItem = $translatableItem->fixLastTranslationForDefaultLocale();
-                $status = $translatableItem->autoTranslate($doPublish);
+                $status = $translatableItem->autoTranslate($doPublish, $forceTranslation);
                 $this->outputStatus($status);
             }
         }

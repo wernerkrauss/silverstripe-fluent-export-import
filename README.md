@@ -91,7 +91,7 @@ Notice: the task can only publish translated content, if you use `FluentVersione
 
 #### Parameters:
 * `do_publish` (required): If set to 1, the task will publish the translated content.
-
+* `force_translation` (optional): If set to 1, the task will translate all content that is untranslated or marked as previoulsy auto translated, even if it was already translated.
 
 ## Todo
 ### File Import/Export
