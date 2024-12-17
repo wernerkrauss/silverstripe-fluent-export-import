@@ -30,16 +30,18 @@ FluentExImTest_LocalisedDataObject_Localised:
     Title: 'Make yourself roar!'
     Content: 'Visit us at Stripecon Ljubljana'
     Locale: en_US
+    LastTranslation: '2024-09-29 14:00:00'
   record_a_de:
     RecordID: =>Netwerkstatt\FluentExIm\Tests\Stub\LocalisedDataObject.record_a
     Title: 'Die Magie von Silverstripe'
     Content: 'Besuchen Sie Hamburg für die beste Silverstripe-Community'
     Locale: de_DE
     IsAutoTranslated: 1
-    LastTranslation: '2024-09-29 14:00:00'
+    LastTranslation: '2024-09-30 14:00:00' #newer than the en_US version
   record_b_de:
     RecordID: =>Netwerkstatt\FluentExIm\Tests\Stub\LocalisedDataObject.record_b
     Title: 'Brüll, Drache, brüll!'
     Content: 'Besuchen Sie uns auf der Stripecon in Ljubljana!'
+    Locale: de_DE
     IsAutoTranslated: 0
-    LastTranslation: '2024-09-28 00:00:00'
+    LastTranslation: '2024-09-28 00:00:00' #was translated manually before en_US version was changed

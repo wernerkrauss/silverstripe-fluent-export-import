@@ -38,7 +38,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Netwerkstatt\\FluentExportImport\\": "src/"
+            "Netwerkstatt\\FluentExportImport\\": "src/",
+            "Netwerkstatt\\FluentExportImport\\Tests\\": "tests/"
         }
     },
         "scripts": {

@@ -5,7 +5,6 @@ namespace Netwerkstatt\FluentExIm\Tests\Stub;
 use Netwerkstatt\FluentExIm\Extension\AutoTranslate;
 use SilverStripe\Dev\TestOnly;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\Security\Member;
 use TractorCow\Fluent\Extension\FluentExtension;
 
 class LocalisedDataObject extends DataObject implements TestOnly
@@ -21,6 +20,7 @@ class LocalisedDataObject extends DataObject implements TestOnly
         FluentExtension::class,
         AutoTranslate::class
     ];
+
     private bool $canEdit = true;
 
     public function setCanEdit(bool $canEdit)
