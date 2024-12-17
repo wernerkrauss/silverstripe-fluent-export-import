@@ -40,6 +40,8 @@ class AutoTranslate extends DataExtension
         'LastTranslation',
     ];
 
+    private static ?Translatable $translator = null;
+
     public function canTranslate(): bool
     {
         return $this->hasDefaultLocale() && $this->getOwner()->canEdit();
@@ -159,23 +161,17 @@ class AutoTranslate extends DataExtension
         /** @var DataObject $owner */
         $owner = $this->getOwner();
         if (!$this->hasDefaultLocale()) {
-            return $status->setStatus(AITranslationStatus::ERROR)->setMessage('Item not in default locale');
+            return $status->setStatus(AITranslationStatus::STATUS_ERROR)->setMessage(AITranslationStatus::ERRORMSG_NOTDEFAULTLOCALE);
         }
 
         $data = $this->getTranslatableFields();
         if ($data === []) {
-            return $status->setStatus(AITranslationStatus::ERROR)->setMessage('No translatable fields found');
+            return $status->setStatus(AITranslationStatus::STATUS_ERROR)->setMessage(AITranslationStatus::ERRORMSG_NOTHINGFOUND);
         }
 
         $json = json_encode($data, JSON_THROW_ON_ERROR);
 
-        //@todo use dependency injection later
-        $apiKey = Environment::getEnv('CHATGPT_API_KEY');
-        if (!$apiKey) {
-            throw new \RuntimeException('No API Key found');
-        }
-
-        $translator = new ChatGPTTranslator($apiKey);
+        $translator = self::getTranslator();
 
         foreach (Locale::get()->exclude(['Locale' => Locale::getDefault()->Locale]) as $locale) {
             $status = FluentState::singleton()
@@ -282,13 +278,13 @@ class AutoTranslate extends DataExtension
 
         //if translated do is newer than original, do not translate. It is already translated
         if ($existsInLocale && $translatedObject->LastTranslation > $owner->LastTranslation && !$forceTranslation) {
-            $status->addLocale($locale->Locale, AITranslationStatus::ALREADYTRANSLATED);
+            $status->addLocale($locale->Locale, AITranslationStatus::STATUS_ALREADYTRANSLATED);
             return $status;
         }
 
         //if translated do is not set to auto translate, do not translate as it was edited manually
         if ($existsInLocale && !$translatedObject->IsAutoTranslated) {
-            $status->addLocale($locale->Locale, AITranslationStatus::NOTAUTOTRANSLATED);
+            $status->addLocale($locale->Locale, AITranslationStatus::STATUS_NOTAUTOTRANSLATED);
             return $status;
         }
 
@@ -296,12 +292,12 @@ class AutoTranslate extends DataExtension
         $translatedData = json_decode($translatedDataOrig, true);
 
         if (!$translatedData) {
-            $status->addLocale($locale->Locale, AITranslationStatus::NOTHINGTOTRANSLATE);
+            $status->addLocale($locale->Locale, AITranslationStatus::STATUS_NOTHINGTOTRANSLATE);
             return $status;
         }
 
         if (!is_array($translatedData)) {
-            $status->addLocale($locale->Locale, AITranslationStatus::ERROR);
+            $status->addLocale($locale->Locale, AITranslationStatus::STATUS_ERROR);
             $status->setSource($json);
             $status->setAiResponse($translatedDataOrig);
             $status->setData($translatedData);
@@ -319,10 +315,42 @@ class AutoTranslate extends DataExtension
         if ($doPublish && $isPublishableObject && $ownerIsPublished) {
             /** @var Versioned|DataObject $translatedObject */
             $translatedObject->publishSingle();
-            $status->addLocale($locale->Locale, AITranslationStatus::PUBLISHED);
+            $status->addLocale($locale->Locale, AITranslationStatus::STATUS_PUBLISHED);
         } else {
-            $status->addLocale($locale->Locale, AITranslationStatus::TRANSLATED);
+            $status->addLocale($locale->Locale, AITranslationStatus::STATUS_TRANSLATED);
         }
         return $status;
+    }
+
+    public static function getTranslator(): Translatable
+    {
+        if(!self::$translator) {
+            self::$translator = self::getDefaultTranslator();
+        }
+
+        return self::$translator;
+    }
+
+    public static function setTranslator(Translatable $translator): void
+    {
+        self::$translator = $translator;
+    }
+
+    /**
+     * Fallback if no translator is set. Use ChatGPT for now
+     *
+     * @throws \RuntimeException
+     * @return Translatable
+     */
+    public static function getDefaultTranslator(): Translatable
+    {
+        //@todo use dependency injection later
+        $apiKey = Environment::getEnv('CHATGPT_API_KEY');
+        if (!$apiKey) {
+            throw new \RuntimeException('No API Key found');
+        }
+
+        self::$translator = new ChatGPTTranslator($apiKey);
+        return self::$translator;
     }
 }

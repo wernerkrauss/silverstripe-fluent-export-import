@@ -9,12 +9,15 @@ use SilverStripe\View\ViewableData;
 
 class AITranslationStatus extends ViewableData
 {
-    public const NOTHINGTOTRANSLATE = 'Nothing to translate';
-    public const TRANSLATED = 'Translated';
-    public const PUBLISHED = 'Translated and published';
-    public const NOTAUTOTRANSLATED = 'Not auto translated';
-    public const ALREADYTRANSLATED = 'Already translated';
-    public const ERROR = 'Error';
+    public const STATUS_NOTHINGTOTRANSLATE = 'Nothing to translate';
+    public const STATUS_TRANSLATED = 'Translated';
+    public const STATUS_PUBLISHED = 'Translated and published';
+    public const STATUS_NOTAUTOTRANSLATED = 'Not auto translated';
+    public const STATUS_ALREADYTRANSLATED = 'Already translated';
+    public const STATUS_ERROR = 'Error';
+
+    public const ERRORMSG_NOTDEFAULTLOCALE = 'Item not in default locale';
+    public const ERRORMSG_NOTHINGFOUND = 'No translatable fields found';
 
     private DataObject $object;
     private array $locales_translated_to = [];
@@ -33,7 +36,7 @@ class AITranslationStatus extends ViewableData
         array $data = []
     ) {
         if ($status === '') {
-            $status = self::ERROR;
+            $status = self::STATUS_ERROR;
         }
         $this->failover = $object;
         $this->object = $object;
@@ -130,8 +133,8 @@ class AITranslationStatus extends ViewableData
     public static function getLogLevel(string $status): string
     {
         return match ($status) {
-            self::ALREADYTRANSLATED, self::NOTAUTOTRANSLATED, self::NOTHINGTOTRANSLATE => 'warning',
-            self::ERROR => 'error',
+            self::STATUS_ALREADYTRANSLATED, self::STATUS_NOTAUTOTRANSLATED, self::STATUS_NOTHINGTOTRANSLATE => 'warning',
+            self::STATUS_ERROR => 'error',
             default => 'info',
         };
     }
