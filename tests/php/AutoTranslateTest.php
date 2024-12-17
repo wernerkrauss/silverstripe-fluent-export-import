@@ -159,4 +159,38 @@ class AutoTranslateTest extends SapphireTest
             $this->assertEquals(AITranslationStatus::STATUS_NOTAUTOTRANSLATED, $localesStatus['de_DE'], 'AutoTranslate should return that de_DE is not auto translated');
         });
     }
+
+    public function testAutoTranslateCreatesAndSavesTranslation()
+    {
+        FluentState::singleton()->withState(function (FluentState $newState) {
+            $newState
+                ->setLocale('en_US');
+
+            $recordA = $this->objFromFixture(LocalisedDataObject::class, 'record_a');
+            $this->assertTrue($recordA->existsInLocale('de_DE'), 'Record should exist in de_DE before running autoTranslate');
+            $this->assertFalse($recordA->existsInLocale('es_ES'), 'Record should not exist in es_ES before running autoTranslate');
+
+
+            $status = $recordA->autoTranslate(false, true); //force translation for de_DE
+
+            $this->assertTrue($recordA->existsInLocale('de_DE'), 'Record should exist in de_DE after running autoTranslate');
+            $this->assertTrue($recordA->existsInLocale('es_ES'), 'Record should exist in es_ES after running autoTranslate');
+
+            $newState->setLocale('de_DE');
+            $recordA_DE = LocalisedDataObject::get()->byID($recordA->ID);
+            $this->assertEquals('Magic of Silverstripe (translated to de_DE)', $recordA_DE->Title, 'Title should be translated to de_DE');
+            $this->assertEquals('Vist Hamburg for the best Silverstripe community (translated to de_DE)', $recordA_DE->Content, 'Content should be translated to de_DE');
+
+            $newState->setLocale('es_ES');
+            $recordA_ES = LocalisedDataObject::get()->byID($recordA->ID);
+            $this->assertEquals('Magic of Silverstripe (translated to es_ES)', $recordA_ES->Title, 'Title should be translated to es_ES');
+            $this->assertEquals('Vist Hamburg for the best Silverstripe community (translated to es_ES)', $recordA_ES->Content, 'Content should be translated to es_ES');
+        });
+    }
+
+
+    public function testDoPublishWorksOnVersionedObjects()
+    {
+        $this->markTestSkipped('to implement');
+    }
 }
