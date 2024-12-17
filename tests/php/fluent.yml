@@ -1,0 +1,11 @@
+TractorCow\Fluent\Model\Locale:
+  default:
+    Title: US English
+    Locale: en_US
+    IsGlobalDefault: true
+  german:
+    Title: German
+    Locale: de_DE
+  spanish:
+    Title: Spanish
+    Locale: es_ES

@@ -1,0 +1,45 @@
+TractorCow\Fluent\Model\Locale:
+  default:
+    Title: US English
+    Locale: en_US
+    IsGlobalDefault: true
+  german:
+    Title: German
+    Locale: de_DE
+  spanish:
+    Title: Spanish
+    Locale: es_ES
+
+Netwerkstatt\FluentExIm\Tests\Stub\LocalisedDataObject:
+  record_a:
+    Title: 'Magic of Silverstripe'
+    Content: 'Vist Hamburg for the best Silverstripe community'
+  record_b:
+    Title: 'Make yourself roar!'
+    Content: 'Visit us at Stripecon Ljubljana'
+
+FluentExImTest_LocalisedDataObject_Localised:
+  record_a_us:
+    RecordID: =>Netwerkstatt\FluentExIm\Tests\Stub\LocalisedDataObject.record_a
+    Title: 'Magic of Silverstripe'
+    Content: 'Vist Hamburg for the best Silverstripe community'
+    Locale: en_US
+    LastTranslation: '2024-09-29 14:00:00'
+  record_b_us:
+    RecordID: =>Netwerkstatt\FluentExIm\Tests\Stub\LocalisedDataObject.record_b
+    Title: 'Make yourself roar!'
+    Content: 'Visit us at Stripecon Ljubljana'
+    Locale: en_US
+  record_a_de:
+    RecordID: =>Netwerkstatt\FluentExIm\Tests\Stub\LocalisedDataObject.record_a
+    Title: 'Die Magie von Silverstripe'
+    Content: 'Besuchen Sie Hamburg für die beste Silverstripe-Community'
+    Locale: de_DE
+    IsAutoTranslated: 1
+    LastTranslation: '2024-09-29 14:00:00'
+  record_b_de:
+    RecordID: =>Netwerkstatt\FluentExIm\Tests\Stub\LocalisedDataObject.record_b
+    Title: 'Brüll, Drache, brüll!'
+    Content: 'Besuchen Sie uns auf der Stripecon in Ljubljana!'
+    IsAutoTranslated: 0
+    LastTranslation: '2024-09-28 00:00:00'
