@@ -1,10 +1,13 @@
 # Silverstripe Fluent Export / Import
 
-An extension for silvertripe/fluent to export and import translations. Comes with a task to automatically translate content using ChatGPT.
+An extension for silvertripe/fluent 
+* export and import translations with yml files
+* automatically translate content using ChatGPT.
 
-Run `dev/tasks/fluent-export` to export all translations as a zip of yml files.
-
-Then you can translate the content and import it again.
+## Installation
+```bash
+composer require wernerkrauss/silverstripe-fluent-export-import
+```
 
 ## Important notice
 I take no warranty for any data loss. Please backup your database before importing translations.
@@ -19,6 +22,8 @@ Please validate the yml files before importing them. Take care to escape apostro
 Run `dev/tasks/fluent-export` to export all translations as a zip of yml files.
 
 You can also go to the LocaleAdmin and click on the export button.
+
+Now you can translate the content and import it again.
 
 ### Import
 Translations are imported in LocaleAdmin. Hit the import button and select the zip or yml file you want to import.
@@ -95,14 +100,14 @@ Notice: the task can only publish translated content, if you use `FluentVersione
 
 ## Todo
 ### File Import/Export
-- [X] Export translations to YML
-- [X] Import translations from YML
-- [X] Import translations from a zip containing yml files
+- [X] ~~Export translations to YML~~
+- [X] ~~Import translations from YML~~
+- [X] ~~Import translations from a zip containing yml files~~
 - [ ] other file adapters for import/export like json or xliff
-- [X] better UI, e.g. in LocaleAdmin
+- [X] ~~better UI, e.g. in LocaleAdmin~~
 - [ ] use AI on export to translate content; export original and translated content
 ## AI Translation
-- [X] documentation how to ask ChatGPT to translate in a correct way
+- [X] ~~documentation how to ask ChatGPT to translate in a correct way~~
 - [ ] implement other translation services like DeepL
 
 ## Thanks to
