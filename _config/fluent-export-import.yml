@@ -16,3 +16,7 @@ SilverStripe\MimeValidator\MimeUploadValidator:
       - 'text/plain'
       - 'application/x-yaml'
     zip: 'application/zip'
+
+SilverStripe\Control\Director:
+  rules:
+    'aitranslate': Netwerkstatt\FluentExIm\Control\AITranslateController

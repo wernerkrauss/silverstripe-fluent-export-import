@@ -2,9 +2,12 @@
 
 namespace Netwerkstatt\FluentExIm\Translator;
 
+use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\View\ArrayData;
+use SilverStripe\View\ViewableData;
 
-class AITranslationStatus
+class AITranslationStatus extends ViewableData
 {
     public const NOTHINGTOTRANSLATE = 'Nothing to translate';
     public const TRANSLATED = 'Translated';
@@ -32,6 +35,7 @@ class AITranslationStatus
         if ($status === '') {
             $status = self::ERROR;
         }
+        $this->failover = $object;
         $this->object = $object;
         $this->status = $status;
         $this->message = $message;
@@ -65,6 +69,18 @@ class AITranslationStatus
     public function getLocalesTranslatedTo(): array
     {
         return $this->locales_translated_to;
+    }
+
+    public function getLocalesTranslatedToForTemplate()
+    {
+        $data = ArrayList::create();
+        foreach ($this->getLocalesTranslatedTo() as $locale => $status) {
+            $data->push(ArrayData::create([
+                'Locale' => $locale,
+                'Status' => $status,
+            ]));
+        }
+        return $data;
     }
 
     public function addLocale(string $locale, string $status): self

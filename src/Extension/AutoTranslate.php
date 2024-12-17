@@ -2,10 +2,13 @@
 
 namespace Netwerkstatt\FluentExIm\Extension;
 
+use LeKoala\CmsActions\SilverStripeIcons;
+use LeKoala\PureModal\PureModal;
 use Netwerkstatt\FluentExIm\Helper\FluentHelper;
 use Netwerkstatt\FluentExIm\Translator\AITranslationStatus;
 use Netwerkstatt\FluentExIm\Translator\ChatGPTTranslator;
 use Netwerkstatt\FluentExIm\Translator\Translatable;
+use SilverStripe\Control\Controller;
 use SilverStripe\Core\Environment;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
@@ -37,6 +40,11 @@ class AutoTranslate extends DataExtension
         'LastTranslation',
     ];
 
+    public function canTranslate(): bool
+    {
+        return $this->hasDefaultLocale() && $this->getOwner()->canEdit();
+    }
+
 
     public function onBeforeWrite()
     {
@@ -65,6 +73,77 @@ class AutoTranslate extends DataExtension
             }
         }
     }
+
+    public function updateCMSActions(FieldList $actions)
+    {
+        if (!$this->getOwner()->canTranslate()) {
+            return;
+        }
+
+        $translatableLocales = Locale::get()->exclude(['IsGlobalDefault' => 1]);
+        $localesCount = $translatableLocales->count();
+        $localesString = implode(', ', $translatableLocales->column('Title'));
+        $translateconfirmation = _t(self::class . '.TRANSLATE_CONFIRMATION',
+            'Translate to 1 other locale ({locales})?|Translate to {count} other locales ({locales})?',
+            ['count' => $localesCount, 'locales' => $localesString]);
+
+
+        $buttonTitle = _t(
+            self::class . '.TRANSLATE_MODAL_TITLE',
+            'Auto Translate'
+
+        );
+        $modalTitle = _t(
+            self::class . '.TRANSLATE_MODAL_TITLE',
+            'Import {locale} ({localeCode})Translations',
+            ['locale' => $this->getOwner()->Title, 'localeCode' => $this->getOwner()->Locale]
+        );
+        $url = Controller::join_links([
+            '/aitranslate/',
+            '?ClassName=' . $this->getOwner()->ClassName,
+            '?ID=' . $this->getOwner()->ID,
+        ]);
+
+        $translate = PureModal::create('doAutoTranslate', $buttonTitle, sprintf('<h1>%s</h1>', $buttonTitle));
+        $translate->setIframe($url);
+        $translate->setButtonIcon(SilverStripeIcons::ICON_TRANSLATABLE);
+
+        $actions->push($translate);
+    }
+
+    public function onAfterUpdateCMSActions(FieldList $actions)
+    {
+        $translateAction = $actions->fieldByName('doTranslate');
+        if ($translateAction) {
+            //move at the end of the stack to appear on the right side
+            $actions->remove($translateAction);
+            $actions->push($translateAction);
+        }
+    }
+
+    /**
+     * @param $data
+     * @param $form
+     * @return AITranslationStatus[]
+     * @throws \JsonException
+     */
+    public function doRecursiveAutoTranslate($data, $form): array
+    {
+        $doPublish = $data['doPublish'] ?? false;
+        $forceTranslation = $data['forceTranslation'] ?? false;
+        //@todo ability to filter locales to translate to
+        $status[] = $this->autoTranslate($doPublish, $forceTranslation);
+        $ownedObjects = $this->getOwner()->findRelatedObjects('owns', true);
+        foreach ($ownedObjects as $ownedObject) {
+            if (!$ownedObject->hasExtension(AutoTranslate::class)) {
+                continue;
+            }
+            $status[] = $ownedObject->autoTranslate($doPublish, $forceTranslation);
+        }
+
+        return $status;
+    }
+
 
     /**
      * @throws \RuntimeException
@@ -100,9 +179,17 @@ class AutoTranslate extends DataExtension
 
         foreach (Locale::get()->exclude(['Locale' => Locale::getDefault()->Locale]) as $locale) {
             $status = FluentState::singleton()
-                ->withState(function (FluentState $state) use ($locale, $translator, $status, $json, $doPublish, $forceTranslation) {
+                ->withState(function (FluentState $state) use (
+                    $locale,
+                    $translator,
+                    $status,
+                    $json,
+                    $doPublish,
+                    $forceTranslation
+                ) {
                     $state->setLocale($locale->Locale);
-                    return $this->performTranslation($translator, $status, $locale, $json, $doPublish, $forceTranslation);
+                    return $this->performTranslation($translator, $status, $locale, $json, $doPublish,
+                        $forceTranslation);
                 });
         }
         return $status;
