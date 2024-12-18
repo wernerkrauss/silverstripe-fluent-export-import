@@ -88,7 +88,7 @@ class AutoTranslateTest extends SapphireTest
             $dataObjectDE = $this->objFromFixture(LocalisedDataObject::class, 'record_a');
             /** @var AITranslationStatus $status */
             $status = $dataObjectDE->autoTranslate();
-            $this->assertEquals(AITranslationStatus::ERRORMSG_NOTDEFAULTLOCALE,$status->getMessage(),  'AutoTranslate should fail if not in default locale');
+            $this->assertEquals(AITranslationStatus::ERRORMSG_NOTDEFAULTLOCALE, $status->getMessage(), 'AutoTranslate should fail if not in default locale');
 
             $newState
                 ->setLocale('en_US');
