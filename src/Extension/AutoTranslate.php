@@ -85,15 +85,16 @@ class AutoTranslate extends DataExtension
         $translatableLocales = Locale::get()->exclude(['IsGlobalDefault' => 1]);
         $localesCount = $translatableLocales->count();
         $localesString = implode(', ', $translatableLocales->column('Title'));
-        $translateconfirmation = _t(self::class . '.TRANSLATE_CONFIRMATION',
+        $translateconfirmation = _t(
+            self::class . '.TRANSLATE_CONFIRMATION',
             'Translate to 1 other locale ({locales})?|Translate to {count} other locales ({locales})?',
-            ['count' => $localesCount, 'locales' => $localesString]);
+            ['count' => $localesCount, 'locales' => $localesString]
+        );
 
 
         $buttonTitle = _t(
             self::class . '.TRANSLATE_MODAL_TITLE',
             'Auto Translate'
-
         );
         $modalTitle = _t(
             self::class . '.TRANSLATE_MODAL_TITLE',
@@ -184,8 +185,14 @@ class AutoTranslate extends DataExtension
                     $forceTranslation
                 ) {
                     $state->setLocale($locale->Locale);
-                    return $this->performTranslation($translator, $status, $locale, $json, $doPublish,
-                        $forceTranslation);
+                    return $this->performTranslation(
+                        $translator,
+                        $status,
+                        $locale,
+                        $json,
+                        $doPublish,
+                        $forceTranslation
+                    );
                 });
         }
         return $status;
@@ -324,7 +331,7 @@ class AutoTranslate extends DataExtension
 
     public static function getTranslator(): Translatable
     {
-        if(!self::$translator) {
+        if (!self::$translator) {
             self::$translator = self::getDefaultTranslator();
         }
 

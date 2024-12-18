@@ -170,4 +170,3 @@ class AIAutoTranslate extends BuildTask
         }
     }
 }
-

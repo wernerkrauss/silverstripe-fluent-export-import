@@ -44,9 +44,11 @@ class AITranslateController extends Controller
         $translatableLocales = Locale::get()->exclude(['IsGlobalDefault' => 1]);
         $localesCount = $translatableLocales->count();
         $localesString = implode(', ', $translatableLocales->column('Title'));
-        $translateconfirmation = _t(self::class . '.TRANSLATE_CONFIRMATION',
+        $translateconfirmation = _t(
+            self::class . '.TRANSLATE_CONFIRMATION',
             'Translate to 1 other locale ({locales})?|Translate to {count} other locales ({locales})?',
-            ['count' => $localesCount, 'locales' => $localesString]);
+            ['count' => $localesCount, 'locales' => $localesString]
+        );
 
         $fields = FieldList::create([
             LiteralField::create('TranslateDescription', $translateconfirmation),
