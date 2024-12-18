@@ -1,7 +1,7 @@
 {
     "name": "wernerkrauss/silverstripe-fluent-export-import",
     "description": "File export and import for SilverStripe Fluent",
-    "type": "silverstripe-vendor-module",
+    "type": "silverstripe-vendormodule",
     "keywords": [
         "silverstripe",
         "extension",
@@ -24,7 +24,7 @@
     "require": {
         "php": "^8.2",
         "ext-zip": "*",
-        "silverstripe/framework": "^5",
+        "silverstripe/framework": "^5.2",
         "tractorcow/silverstripe-fluent": "^7",
         "lekoala/silverstripe-pure-modal": "^1.2.1",
         "lekoala/silverstripe-cms-actions": "^1.7.5",
@@ -39,7 +39,7 @@
     "autoload": {
         "psr-4": {
             "Netwerkstatt\\FluentExportImport\\": "src/",
-            "Netwerkstatt\\FluentExportImport\\Tests\\": "tests/"
+            "Netwerkstatt\\FluentExportImport\\Tests\\": "tests/php/"
         }
     },
         "scripts": {
