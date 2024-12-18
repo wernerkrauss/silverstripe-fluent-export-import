@@ -18,6 +18,7 @@ class MockTranslator implements Translatable, TestOnly
         foreach ($translations as $key => $value) {
             $translations[$key] = $value . ' (translated to ' . $targetLocale . ')';
         }
+
         return json_encode($translations);
     }
 }

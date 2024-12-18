@@ -13,6 +13,7 @@ use TractorCow\Fluent\State\FluentState;
 class AutoTranslateTest extends SapphireTest
 {
     protected static $fixture_file = 'AutoTranslateTest.yml';
+
     protected static $extra_dataobjects = [
         LocalisedDataObject::class,
     ];
@@ -33,7 +34,7 @@ class AutoTranslateTest extends SapphireTest
 
             $dataObject = $this->objFromFixture(LocalisedDataObject::class, 'record_a');
             $this->assertTrue((bool)$dataObject->getSourceLocale()->IsGlobalDefault, 'Locale should be default locale');
-            $this->assertTrue($dataObject->canTranslate(), 'We\'re only allowed to translate in default locale');
+            $this->assertTrue($dataObject->canTranslate(), "We're only allowed to translate in default locale");
         });
     }
 
@@ -45,7 +46,7 @@ class AutoTranslateTest extends SapphireTest
 
             $dataObject = $this->objFromFixture(LocalisedDataObject::class, 'record_a');
             $this->assertFalse((bool)$dataObject->getSourceLocale()->IsGlobalDefault, 'Locale should not be default locale');
-            $this->assertFalse($dataObject->canTranslate(), 'We\'re not allowed to translate in other locales');
+            $this->assertFalse($dataObject->canTranslate(), "We're not allowed to translate in other locales");
         });
     }
 
@@ -59,7 +60,7 @@ class AutoTranslateTest extends SapphireTest
             $dataObject = $this->objFromFixture(LocalisedDataObject::class, 'record_a');
             $dataObject->setCanEdit(false);
             $this->assertTrue((bool)$dataObject->getSourceLocale()->IsGlobalDefault, 'Locale should be default locale');
-            $this->assertFalse($dataObject->canTranslate(), 'We\'re only allowed to translate in default locale');
+            $this->assertFalse($dataObject->canTranslate(), "We're only allowed to translate in default locale");
         });
     }
 
@@ -95,6 +96,7 @@ class AutoTranslateTest extends SapphireTest
 
             $emptyDataObject = LocalisedDataObject::create(['Locale' => 'en_US']);
             $emptyDataObject->write();
+
             $status = $emptyDataObject->autoTranslate();
             $this->assertEquals(AITranslationStatus::ERRORMSG_NOTHINGFOUND, $status->getMessage(), 'AutoTranslate should fail if no data found');
         });

@@ -9,13 +9,22 @@ use TractorCow\Fluent\Extension\FluentExtension;
 
 class LocalisedDataObject extends DataObject implements TestOnly
 {
+    /**
+     * @config
+     */
     private static $table_name = 'FluentExImTest_LocalisedDataObject';
 
+    /**
+     * @config
+     */
     private static $db = [
         'Title' => 'Varchar',
         'Content' => 'HTMLText',
     ];
 
+    /**
+     * @config
+     */
     private static $extensions = [
         FluentExtension::class,
         AutoTranslate::class
