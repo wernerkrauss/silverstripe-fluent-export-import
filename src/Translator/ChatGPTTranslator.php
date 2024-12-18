@@ -40,8 +40,8 @@ class ChatGPTTranslator implements Translatable
     {
         try {
             return $this->client->models()->list()->toArray();
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Error retrieving models: ' . $e->getMessage());
+        } catch (\Exception $exception) {
+            throw new \RuntimeException('Error retrieving models: ' . $exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 
@@ -76,8 +76,8 @@ class ChatGPTTranslator implements Translatable
             }
 
             throw new \RuntimeException('Invalid response structure from API');
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Translation failed: ' . $e->getMessage());
+        } catch (\Exception $exception) {
+            throw new \RuntimeException('Translation failed: ' . $exception->getMessage(), $exception->getCode(), $exception);
         }
     }
 

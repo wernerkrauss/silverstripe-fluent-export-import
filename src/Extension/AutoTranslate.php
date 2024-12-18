@@ -141,6 +141,8 @@ class AutoTranslate extends DataExtension
             if (!$ownedObject->hasExtension(AutoTranslate::class)) {
                 continue;
             }
+
+            // @phpstan-ignore-next-line
             $status[] = $ownedObject->autoTranslate($doPublish, $forceTranslation);
         }
 
@@ -157,7 +159,7 @@ class AutoTranslate extends DataExtension
     public function autoTranslate(bool $doPublish = false, bool $forceTranslation = false): AITranslationStatus
     {
         $this->checkIfAutoTranslateFieldsAreTranslatable();
-        $status = new AITranslationStatus($this->getOwner());
+        $status = \Netwerkstatt\FluentExIm\Translator\AITranslationStatus::create($this->getOwner());
 
         /** @var DataObject $owner */
         $owner = $this->getOwner();
@@ -195,6 +197,7 @@ class AutoTranslate extends DataExtension
                     );
                 });
         }
+
         return $status;
     }
 
@@ -326,12 +329,13 @@ class AutoTranslate extends DataExtension
         } else {
             $status->addLocale($locale->Locale, AITranslationStatus::STATUS_TRANSLATED);
         }
+
         return $status;
     }
 
     public static function getTranslator(): Translatable
     {
-        if (!self::$translator) {
+        if (!self::$translator instanceof \Netwerkstatt\FluentExIm\Translator\Translatable) {
             self::$translator = self::getDefaultTranslator();
         }
 
@@ -357,7 +361,7 @@ class AutoTranslate extends DataExtension
             throw new \RuntimeException('No API Key found');
         }
 
-        self::$translator = new ChatGPTTranslator($apiKey);
+        self::$translator = \Netwerkstatt\FluentExIm\Translator\ChatGPTTranslator::create($apiKey);
         return self::$translator;
     }
 }

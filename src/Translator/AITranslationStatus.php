@@ -10,41 +10,42 @@ use SilverStripe\View\ViewableData;
 class AITranslationStatus extends ViewableData
 {
     public const STATUS_NOTHINGTOTRANSLATE = 'Nothing to translate';
+
     public const STATUS_TRANSLATED = 'Translated';
+
     public const STATUS_PUBLISHED = 'Translated and published';
+
     public const STATUS_NOTAUTOTRANSLATED = 'Not auto translated';
+
     public const STATUS_ALREADYTRANSLATED = 'Already translated';
+
     public const STATUS_ERROR = 'Error';
 
     public const ERRORMSG_NOTDEFAULTLOCALE = 'Item not in default locale';
+
     public const ERRORMSG_NOTHINGFOUND = 'No translatable fields found';
 
-    private DataObject $object;
+    private readonly DataObject $object;
+
     private array $locales_translated_to = [];
+
     private string $status;
-    private string $message;
-    private string $source;
-    private string $aiResponse;
-    private array|string $data;
 
     public function __construct(
         DataObject $object,
         string $status = '',
-        string $message = '',
-        string $source = '',
-        string $aiResponse = '',
-        array $data = []
+        private string $message = '',
+        private string $source = '',
+        private string $aiResponse = '',
+        private array|string $data = []
     ) {
         if ($status === '') {
             $status = self::STATUS_ERROR;
         }
+
         $this->failover = $object;
         $this->object = $object;
         $this->status = $status;
-        $this->message = $message;
-        $this->source = $source;
-        $this->aiResponse = $aiResponse;
-        $this->data = $data;
     }
 
     public function getStatus(): string
@@ -83,6 +84,7 @@ class AITranslationStatus extends ViewableData
                 'Status' => $status,
             ]));
         }
+
         return $data;
     }
 

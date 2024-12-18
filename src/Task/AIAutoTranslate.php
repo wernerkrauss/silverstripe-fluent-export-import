@@ -42,6 +42,11 @@ class AIAutoTranslate extends BuildTask
      * @config
      */
     protected $description = 'Translate all translatable fields using AI; requires ChatGPT API key; Needs AutoTranslate extension';
+
+    /**
+     * @config
+     * @var string[]
+     */
     private static $dependencies = [
         'logger' => '%$' . LoggerInterface::class,
     ];
@@ -72,12 +77,14 @@ class AIAutoTranslate extends BuildTask
             throw new \RuntimeException('Please run this task in default locale');
         }
 
+        if ($request->getVar('do_publish') === null) {
+            throw new \InvalidArgumentException('Please provide do_publish parameter. 1 will publish all translated objects, 0 will only write to stage');
+        }
+
         $doPublish = (bool) $request->getVar('do_publish');
         $forceTranslation = (bool) $request->getVar('force_translation');
 
-        if ($doPublish === null) {
-            throw new \InvalidArgumentException('Please provide do_publish parameter. 1 will publish all translated objects, 0 will only write to stage');
-        }
+
 
         $fluentClasses = FluentHelper::getFluentClasses();
         foreach ($fluentClasses as $fluentClassName) {
@@ -90,11 +97,11 @@ class AIAutoTranslate extends BuildTask
                 //fluent should only be applied to base classes
                 continue;
             }
-            echo PHP_EOL . '** ' . $fluentClass->singular_name() . ' **' . PHP_EOL;
 
+            echo PHP_EOL . '** ' . $fluentClass->singular_name() . ' **' . PHP_EOL;
             $translatableItems = FluentState::singleton()
                 ->setLocale($defaultLocale)
-                ->withState(static fn(FluentState $state) => $fluentClass::get());
+                ->withState(static fn(FluentState $state) => DataObject::get($fluentClass));
             foreach ($translatableItems as $translatableItem) {
                 $translatableItem = $translatableItem->fixLastTranslationForDefaultLocale();
                 $status = $translatableItem->autoTranslate($doPublish, $forceTranslation);
@@ -106,11 +113,11 @@ class AIAutoTranslate extends BuildTask
     private function outputStatus(AITranslationStatus $status)
     {
         $msg = $status->getObject()->ClassName . ': ' . $status->getObject()->getTitle() . ' (' . $status->getObject()->ID . '): ' . PHP_EOL;
-        $msg = $status->getMessage() ? $msg . ' - ' . $status->getMessage() : $msg;
+        $msg = $status->getMessage() !== '' && $status->getMessage() !== '0' ? $msg . ' - ' . $status->getMessage() : $msg;
         $this->log($status->getStatus(), $msg);
 
         $localesTranslatedTo = $status->getLocalesTranslatedTo();
-        if (count($localesTranslatedTo)) {
+        if ($localesTranslatedTo !== []) {
             foreach ($localesTranslatedTo as $locale => $localeStatus) {
                 $this->log(AITranslationStatus::getLogLevel($localeStatus), ' * ' . $locale . ': ' . $localeStatus);
             }
@@ -156,17 +163,10 @@ class AIAutoTranslate extends BuildTask
      */
     private function log(string $status, string $msg): void
     {
-        switch ($status) {
-            case 'warning':
-                $this->logger->warning($msg);
-                break;
-            case 'error':
-                $this->logger->error($msg);
-                break;
-            case 'info':
-            default:
-                $this->logger->info($msg);
-                break;
-        }
+        match ($status) {
+            'warning' => $this->logger->warning($msg),
+            'error' => $this->logger->error($msg),
+            default => $this->logger->info($msg),
+        };
     }
 }

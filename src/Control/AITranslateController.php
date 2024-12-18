@@ -19,12 +19,18 @@ use TractorCow\Fluent\Model\Locale;
 
 class AITranslateController extends Controller
 {
+    /**
+     * @config
+     */
     private static $allowed_actions = [
         'index',
         'TranslationForm',
         'doTranslate',
     ];
 
+    /**
+     * @config
+     */
     private static $url_segment = 'aitranslate';
 
     protected function init()
@@ -61,6 +67,7 @@ class AITranslateController extends Controller
 
         $translateAction = FormAction::create('doTranslate', _t(self::class . 'TRANSLATE', 'Translate'));
         $translateAction->addExtraClass('btn btn-outline-danger font-icon font-icon-upload');
+
         $actions = FieldList::create([
             $translateAction
         ]);
@@ -77,20 +84,24 @@ class AITranslateController extends Controller
         if (!array_key_exists('ID', $data) || !array_key_exists('ClassName', $data)) {
             $this->httpError(400, 'ID and ClassName required');
         }
+
         $object = $data['ClassName']::get()->byID($data['ID']);
         if (!$object) {
             $this->httpError(404);
         }
+
         if (!$object->hasExtension(AutoTranslate::class)) {
             $this->httpError(400, 'Object does not have AutoTranslate extension');
         }
+
         if (!$object->canTranslate()) {
             $this->httpError(403);
         }
+
 //        Versioned::set_stage(Versioned::DRAFT);
         $status = $object->doRecursiveAutoTranslate($doPublish, $forceTranslation);
 
-        $templates = SSViewer::get_templates_by_class(__CLASS__, '_' . __FUNCTION__);
+        $templates = SSViewer::get_templates_by_class(self::class, '_' . __FUNCTION__);
 
         return $this->customise(['Status' => ArrayList::create($status)])->renderWith($templates);
     }
