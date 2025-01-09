@@ -22,9 +22,9 @@
         "issues": "https://github.com/wernerkrauss/silverstripe-fluent-export-import/issues"
     },
     "require": {
-        "php": "^8.2",
+        "php": "^8.1",
         "ext-zip": "*",
-        "silverstripe/framework": "^5.2",
+        "silverstripe/framework": "^5",
         "tractorcow/silverstripe-fluent": "^7",
         "lekoala/silverstripe-pure-modal": "^1.2.1",
         "lekoala/silverstripe-cms-actions": "^1.7.5",
