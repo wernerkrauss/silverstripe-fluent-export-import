@@ -101,7 +101,7 @@ class AIAutoTranslate extends BuildTask
             echo PHP_EOL . '** ' . $fluentClass->singular_name() . ' **' . PHP_EOL;
             $translatableItems = FluentState::singleton()
                 ->setLocale($defaultLocale)
-                ->withState(static fn(FluentState $state) => DataObject::get($fluentClass));
+                ->withState(static fn(FluentState $state) => DataObject::get($fluentClassName));
             foreach ($translatableItems as $translatableItem) {
                 $translatableItem = $translatableItem->fixLastTranslationForDefaultLocale();
                 $status = $translatableItem->autoTranslate($doPublish, $forceTranslation);
