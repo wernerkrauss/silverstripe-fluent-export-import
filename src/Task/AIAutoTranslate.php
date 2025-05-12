@@ -17,6 +17,8 @@ use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\PolyExecution\PolyOutput;
+use Symfony\Component\Console\Input\InputInterface;
 use TractorCow\Fluent\Model\Locale;
 use TractorCow\Fluent\State\FluentState;
 
@@ -33,17 +35,15 @@ class AIAutoTranslate extends BuildTask
      */
     private static $is_enabled = true;
 
-    protected $enabled = true;
+    /**
+     * @config
+     */
+    protected string $title = 'AI Auto Translate';
 
     /**
      * @config
      */
-    protected $title = 'AI Auto Translate';
-
-    /**
-     * @config
-     */
-    protected $description = 'Translate all translatable fields using AI; requires ChatGPT API key; Needs AutoTranslate extension';
+    protected static string $description = 'Translate all translatable fields using AI; requires ChatGPT API key; Needs AutoTranslate extension';
 
     /**
      * @config
@@ -65,12 +65,12 @@ class AIAutoTranslate extends BuildTask
     /**
      * @inheritDoc
      */
-    public function run($request)
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
         $defaultLocale = Locale::getDefault()->Locale;
         $currentLocale = Locale::getCurrentLocale()->Locale;
-        if ($currentLocale !== $defaultLocale && $request->getVar('locale')) {
-            $defaultLocale = $request->getVar('locale');
+        if ($currentLocale !== $defaultLocale && $input->getOption('locale')) {
+            $defaultLocale = $input->getOption('locale');
             FluentState::singleton()->setLocale($defaultLocale);
             $currentLocale = Locale::getCurrentLocale()->Locale;
         }
@@ -83,8 +83,8 @@ class AIAutoTranslate extends BuildTask
             throw new InvalidArgumentException('Please provide do_publish parameter. 1 will publish all translated objects, 0 will only write to stage');
         }
 
-        $doPublish = (bool) $request->getVar('do_publish');
-        $forceTranslation = (bool) $request->getVar('force_translation');
+        $doPublish = (bool) $input->getOption('do_publish');
+        $forceTranslation = (bool) $input->getOption('force_translation');
 
 
 
@@ -100,19 +100,19 @@ class AIAutoTranslate extends BuildTask
                 continue;
             }
 
-            echo PHP_EOL . '** ' . $fluentClass->singular_name() . ' **' . PHP_EOL;
+            $output->writeln('** ' . $fluentClass->singular_name() . ' **' );
             $translatableItems = FluentState::singleton()
                 ->setLocale($defaultLocale)
                 ->withState(static fn(FluentState $state) => DataObject::get($fluentClassName));
             foreach ($translatableItems as $translatableItem) {
                 $translatableItem = $translatableItem->fixLastTranslationForDefaultLocale();
                 $status = $translatableItem->autoTranslate($doPublish, $forceTranslation);
-                $this->outputStatus($status);
+//                $this->outputStatus($output, $status); //@todo: fix output logging...
             }
         }
     }
 
-    private function outputStatus(AITranslationStatus $status)
+    private function outputStatus(PolyOutput $output, AITranslationStatus $status)
     {
         $msg = $status->getObject()->ClassName . ': ' . $status->getObject()->getTitle() . ' (' . $status->getObject()->ID . '): ' . PHP_EOL;
         $msg = $status->getMessage() !== '' && $status->getMessage() !== '0' ? $msg . ' - ' . $status->getMessage() : $msg;
