@@ -77,8 +77,6 @@ class AITranslateController extends Controller
 
     public function doTranslate(array $data, Form $form)
     {
-        $doPublish = $data['doPublish'] ?? false;
-        $forceTranslation = $data['forceTranslation'] ?? false;
         //@todo ability to filter locales to translate to
         if (!array_key_exists('ID', $data) || !array_key_exists('ClassName', $data)) {
             $this->httpError(400, 'ID and ClassName required');
@@ -98,7 +96,7 @@ class AITranslateController extends Controller
         }
 
 //        Versioned::set_stage(Versioned::DRAFT);
-        $status = $object->doRecursiveAutoTranslate($data, $forceTranslation);
+        $status = $object->doRecursiveAutoTranslate($data, $form);
 
         $templates = SSViewer::get_templates_by_class(self::class, '_' . __FUNCTION__);
 

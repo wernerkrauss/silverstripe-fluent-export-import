@@ -95,7 +95,7 @@ class ChatGPTTranslator implements Translatable
         $command = self::config()->get('gpt_command');
 
         // Erweiterung der Befehlslogik durch andere Klassen
-        $this->extend('updateGPTCommand', $command);
+        $this->extend('updateGPTCommand', $command, $targetLocale);
 
         return sprintf($command, $targetLocale);
     }
