@@ -2,7 +2,6 @@
 
 namespace Netwerkstatt\FluentExIm\Control;
 
-use SilverStripe\Model\List\ArrayList;
 use Netwerkstatt\FluentExIm\Extension\AutoTranslate;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPRequest;
@@ -12,9 +11,11 @@ use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\LiteralField;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\View\Requirements;
 use SilverStripe\View\SSViewer;
 use TractorCow\Fluent\Model\Locale;
+use TractorCow\Fluent\State\FluentState;
 
 class AITranslateController extends Controller
 {
@@ -59,6 +60,7 @@ class AITranslateController extends Controller
             LiteralField::create('TranslateDescription', $translateconfirmation),
             HiddenField::create('ClassName', 'ClassName', $request->requestVar('ClassName')),
             HiddenField::create('ID', 'ID', $request->requestVar('ID')),
+            HiddenField::create('Locale', 'Locale', $request->requestVar('Locale')),
             CheckboxField::create('doPublish', 'Publish after translation'),
             CheckboxField::create('forceTranslation', 'Force translation')
         ]);
@@ -105,7 +107,7 @@ class AITranslateController extends Controller
         return $this->customise(['Status' => ArrayList::create($status)])->renderWith($templates);
     }
 
-    protected function renderDialog(array $customFields = null): string
+    protected function renderDialog(array|null $customFields = null): string
     {
         // Set empty content by default otherwise it will render the full page
         if (empty($customFields['Content'])) {

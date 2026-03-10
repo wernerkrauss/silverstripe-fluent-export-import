@@ -1,0 +1,310 @@
+# This file has been generated from:
+# - https://developers.deepl.com/docs/getting-started/supported-languages
+
+Netwerkstatt\FluentExIm\Translator\DeepLTranslator:
+  source_locales:
+    # SilverStripe locale -> DeepL locale code
+    # Keys are full SilverStripe locale codes (language_COUNTRY)
+
+    # Arabic
+    ar_SA: AR
+    ar_EG: AR
+    ar_AE: AR
+    ar_MA: AR
+    ar_DZ: AR
+    ar_TN: AR
+
+    # Bulgarian
+    bg_BG: BG
+
+    # Czech
+    cs_CZ: CS
+
+    # Danish
+    da_DK: DA
+
+    # German
+    de_DE: DE
+    de_AT: DE
+    de_CH: DE
+    de_LU: DE
+
+    # Greek
+    el_GR: EL
+
+    # English (all common variants)
+    en_US: EN
+    en_GB: EN
+    en_AU: EN
+    en_CA: EN
+    en_NZ: EN
+    en_IE: EN
+    en_ZA: EN
+    en_IN: EN
+    en_SG: EN
+
+    # Spanish (all common variants)
+    es_ES: ES
+    es_MX: ES
+    es_AR: ES
+    es_CO: ES
+    es_CL: ES
+    es_PE: ES
+    es_VE: ES
+    es_UY: ES
+    es_EC: ES
+    es_CR: ES
+    es_DO: ES
+    es_PA: ES
+    es_PY: ES
+    es_GT: ES
+    es_HN: ES
+    es_NI: ES
+    es_PR: ES
+
+    # Estonian
+    et_EE: ET
+
+    # Finnish
+    fi_FI: FI
+
+    # French
+    fr_FR: FR
+    fr_CA: FR
+    fr_BE: FR
+    fr_CH: FR
+    fr_LU: FR
+
+    # Hebrew (next-gen models only)
+    he_IL: HE
+
+    # Hungarian
+    hu_HU: HU
+
+    # Indonesian
+    id_ID: ID
+
+    # Italian
+    it_IT: IT
+    it_CH: IT
+
+    # Japanese
+    ja_JP: JA
+
+    # Korean
+    ko_KR: KO
+
+    # Lithuanian
+    lt_LT: LT
+
+    # Latvian
+    lv_LV: LV
+
+    # Norwegian Bokmål
+    nb_NO: NB
+
+    # Dutch
+    nl_NL: NL
+    nl_BE: NL
+
+    # Polish
+    pl_PL: PL
+
+    # Portuguese (all common variants)
+    pt_PT: PT
+    pt_BR: PT
+    pt_AO: PT
+    pt_MZ: PT
+
+    # Romanian
+    ro_RO: RO
+
+    # Russian
+    ru_RU: RU
+
+    # Slovak
+    sk_SK: SK
+
+    # Slovenian
+    sl_SI: SL
+
+    # Swedish
+    sv_SE: SV
+    sv_FI: SV
+
+    # Thai (next-gen models only)
+    th_TH: TH
+
+    # Turkish
+    tr_TR: TR
+
+    # Ukrainian
+    uk_UA: UK
+
+    # Vietnamese (next-gen models only)
+    vi_VN: VI
+
+    # Chinese (all common variants)
+    zh_CN: ZH
+    zh_TW: ZH
+    zh_HK: ZH
+    zh_SG: ZH
+
+  target_locales:
+    # SilverStripe locale -> DeepL locale code
+    # Keys are full SilverStripe locale codes (language_COUNTRY)
+
+    # Arabic
+    ar_SA: AR
+    ar_EG: AR
+    ar_AE: AR
+    ar_MA: AR
+    ar_DZ: AR
+    ar_TN: AR
+
+    # Bulgarian
+    bg_BG: BG
+
+    # Czech
+    cs_CZ: CS
+
+    # Danish
+    da_DK: DA
+
+    # German
+    de_DE: DE
+    de_AT: DE
+    de_CH: DE
+    de_LU: DE
+
+    # Greek
+    el_GR: EL
+
+    # English
+    en_US: EN-US
+    en_GB: EN-GB
+    # Unspecified/legacy English mapping (backward compatibility)
+    en_AU: EN
+    en_CA: EN
+    en_NZ: EN
+    en_IE: EN
+    en_ZA: EN
+    en_IN: EN
+    en_SG: EN
+    en: EN
+
+    # Spanish
+    es_ES: ES
+    # Latin American Spanish grouped under ES-419
+    es_MX: ES-419
+    es_AR: ES-419
+    es_CO: ES-419
+    es_CL: ES-419
+    es_PE: ES-419
+    es_VE: ES-419
+    es_UY: ES-419
+    es_EC: ES-419
+    es_CR: ES-419
+    es_DO: ES-419
+    es_PA: ES-419
+    es_PY: ES-419
+    es_GT: ES-419
+    es_HN: ES-419
+    es_NI: ES-419
+    es_PR: ES-419
+    es_419: ES-419
+
+    # Estonian
+    et_EE: ET
+
+    # Finnish
+    fi_FI: FI
+
+    # French
+    fr_FR: FR
+    fr_CA: FR
+    fr_BE: FR
+    fr_CH: FR
+    fr_LU: FR
+
+    # Hebrew (next-gen models only)
+    he_IL: HE
+
+    # Hungarian
+    hu_HU: HU
+
+    # Indonesian
+    id_ID: ID
+
+    # Italian
+    it_IT: IT
+    it_CH: IT
+
+    # Japanese
+    ja_JP: JA
+
+    # Korean
+    ko_KR: KO
+
+    # Lithuanian
+    lt_LT: LT
+
+    # Latvian
+    lv_LV: LV
+
+    # Norwegian Bokmål
+    nb_NO: NB
+
+    # Dutch
+    nl_NL: NL
+    nl_BE: NL
+
+    # Polish
+    pl_PL: PL
+
+    # Portuguese
+    pt_BR: PT-BR
+    # Non-Brazilian Portuguese grouped under PT-PT
+    pt_PT: PT-PT
+    pt_AO: PT-PT
+    pt_MZ: PT-PT
+    pt: PT
+
+    # Romanian
+    ro_RO: RO
+
+    # Russian
+    ru_RU: RU
+
+    # Slovak
+    sk_SK: SK
+
+    # Slovenian
+    sl_SI: SL
+
+    # Swedish
+    sv_SE: SV
+    sv_FI: SV
+
+    # Thai (next-gen models only)
+    th_TH: TH
+
+    # Turkish
+    tr_TR: TR
+
+    # Ukrainian
+    uk_UA: UK
+
+    # Vietnamese (next-gen models only)
+    vi_VN: VI
+
+    # Chinese
+    # Simplified
+    zh_CN: ZH-HANS
+    zh_SG: ZH-HANS
+    # Traditional
+    zh_TW: ZH-HANT
+    zh_HK: ZH-HANT
+    # Unspecified/legacy Chinese
+    zh: ZH
+    zh_CN.UTF-8: ZH-HANS

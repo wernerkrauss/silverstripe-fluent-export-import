@@ -2,16 +2,16 @@
 
 namespace Netwerkstatt\FluentExIm\Extension;
 
+use Exception;
 use JsonException;
 use LeKoala\CmsActions\SilverStripeIcons;
 use LeKoala\PureModal\PureModal;
 use Netwerkstatt\FluentExIm\Helper\FluentHelper;
 use Netwerkstatt\FluentExIm\Translator\AITranslationStatus;
-use Netwerkstatt\FluentExIm\Translator\ChatGPTTranslator;
 use Netwerkstatt\FluentExIm\Translator\Translatable;
+use Netwerkstatt\FluentExIm\Translator\TranslatableFactory;
 use RuntimeException;
 use SilverStripe\Control\Controller;
-use SilverStripe\Core\Environment;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldList;
@@ -108,6 +108,7 @@ class AutoTranslate extends Extension
             '/aitranslate/',
             '?ClassName=' . $this->getOwner()->ClassName,
             '?ID=' . $this->getOwner()->ID,
+            '?Locale=' . $this->getOwner()->Locale,
         ]);
 
         $translate = PureModal::create('doAutoTranslate', $buttonTitle, sprintf('<h1>%s</h1>', $buttonTitle));
@@ -158,8 +159,11 @@ class AutoTranslate extends Extension
      * @throws JsonException
      * @todo: currently only chatgpt is supported, make it more generic
      */
-    public function autoTranslate(bool $doPublish = false, bool $forceTranslation = false, array $limit_locales = []): AITranslationStatus
-    {
+    public function autoTranslate(
+        bool $doPublish = false,
+        bool $forceTranslation = false,
+        array $limit_locales = []
+    ): AITranslationStatus {
         $this->checkIfAutoTranslateFieldsAreTranslatable();
         $status = AITranslationStatus::create($this->getOwner());
 
@@ -182,6 +186,7 @@ class AutoTranslate extends Extension
         if ($limit_locales !== []) {
             $locales = $locales->filter(['Locale' => $limit_locales]);
         }
+
         foreach ($locales as $locale) {
             $status = FluentState::singleton()
                 ->withState(function (FluentState $state) use (
@@ -193,17 +198,26 @@ class AutoTranslate extends Extension
                     $forceTranslation
                 ) {
                     $state->setLocale($locale->Locale);
-                    return $this->performTranslation(
+                    return Versioned::withVersionedMode(function () use (
+                        $locale,
                         $translator,
                         $status,
-                        $locale,
                         $json,
                         $doPublish,
                         $forceTranslation
-                    );
+                    ) {
+                        Versioned::set_reading_mode('Stage.' . Versioned::DRAFT);
+                        return $this->performTranslation(
+                            $translator,
+                            $status,
+                            $locale,
+                            $json,
+                            $doPublish,
+                            $forceTranslation
+                        );
+                    });
                 });
         }
-
         return $status;
     }
 
@@ -288,9 +302,15 @@ class AutoTranslate extends Extension
     ): AITranslationStatus {
         $owner = $this->getOwner();
         $existsInLocale = $owner->existsInLocale($locale->Locale);
-        //get translated dataobject
-        /** @var DataObject $translatedObject */
-        $translatedObject = $this->findOrCreateTranslatedObject($locale->Locale);
+
+        try {
+            //get translated dataobject
+            /** @var DataObject $translatedObject */
+            $translatedObject = $this->findOrCreateTranslatedObject($locale->Locale);
+        } catch (Exception $e) {
+            $status->addLocale($locale->Locale, AITranslationStatus::STATUS_ERROR . ': ' . $e->getMessage());
+            return $status;
+        }
 
         //if translated do is newer than original, do not translate. It is already translated
         if ($existsInLocale && $translatedObject->LastTranslation > $owner->LastTranslation && !$forceTranslation) {
@@ -304,7 +324,11 @@ class AutoTranslate extends Extension
             return $status;
         }
 
-        $translatedDataOrig = $translator->translate($json, $locale->Locale);
+        $translatedDataOrig = $translator->translate(
+            $json,
+            Locale::getDefault()->Locale,
+            $locale->Locale
+        );
         $translatedData = json_decode($translatedDataOrig, true);
 
         if (!$translatedData) {
@@ -323,7 +347,13 @@ class AutoTranslate extends Extension
         $translatedObject->update($translatedData);
         $translatedObject->IsAutoTranslated = true;
         $translatedObject->LastTranslation = DBDatetime::now()->getValue();
-        $translatedObject->write();
+
+        try {
+            $translatedObject->write(false, false, false, false, true);
+        } catch (Exception $e) {
+            $status->addLocale($locale->Locale, AITranslationStatus::STATUS_ERROR . ': ' . $e->getMessage());
+            return $status;
+        }
 
         $isPublishableObject = $translatedObject->hasExtension(Versioned::class) && $owner->hasExtension(FluentVersionedExtension::class);
         $ownerIsPublished = $isPublishableObject && $owner->isPublishedInLocale($owner->Locale);
@@ -361,14 +391,7 @@ class AutoTranslate extends Extension
      */
     public static function getDefaultTranslator(): Translatable
     {
-        //@todo use dependency injection later
-        $apiKey = Environment::getEnv('CHATGPT_API_KEY');
-        if (!$apiKey) {
-            throw new RuntimeException('No API Key found');
-        }
-
-        self::$translator = ChatGPTTranslator::create($apiKey);
-        return self::$translator;
+        return TranslatableFactory::getInstance();
     }
 
     /**

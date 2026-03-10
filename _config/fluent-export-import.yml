@@ -20,3 +20,9 @@ SilverStripe\MimeValidator\MimeUploadValidator:
 SilverStripe\Control\Director:
   rules:
     'aitranslate': Netwerkstatt\FluentExIm\Control\AITranslateController
+
+Netwerkstatt\FluentExIm\Translator\TranslatableFactory:
+  # For available backends, see "translators.yml".
+  # This setting may be overwritten by FLUENT_TRANS_BACKEND env var.
+
+  backend: DeepL

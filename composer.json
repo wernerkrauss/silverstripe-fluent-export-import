@@ -28,7 +28,8 @@
         "tractorcow/silverstripe-fluent": "^8",
         "lekoala/silverstripe-pure-modal": "^2",
         "lekoala/silverstripe-cms-actions": "^2",
-        "openai-php/client": "^0.10"
+        "openai-php/client": "^0.10",
+        "deeplcom/deepl-php": "^1.12"
     },
     "require-dev": {
         "phpunit/phpunit": "^9",

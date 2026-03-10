@@ -15,6 +15,7 @@ class ChatGPTTranslator implements Translatable
     use Extensible;
     use Configurable;
     use Injectable;
+    use APITranslator;
 
     /**
      * @config
@@ -28,8 +29,11 @@ class ChatGPTTranslator implements Translatable
 
     private Client $client;
 
-    public function __construct(string $apiKey)
+    public function __construct(string|null $apiKey = null)
     {
+        if ($apiKey === null) {
+            $apiKey = $this->getAPIKey("CHATGPT_API_KEY");
+        }
         $this->client = OpenAI::client($apiKey);
     }
 
@@ -56,7 +60,7 @@ class ChatGPTTranslator implements Translatable
      * @return string Translated text.
      * @throws RuntimeException
      */
-    public function translate(string $text, string $targetLocale): string
+    public function translate(string $text, string $sourceLocale, string $targetLocale): string
     {
         try {
             $response = $this->client->chat()->create([

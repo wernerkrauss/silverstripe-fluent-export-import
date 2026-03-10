@@ -134,9 +134,14 @@ class AITranslationStatus extends ModelData
 
     public static function getLogLevel(string $status): string
     {
+        if (str_starts_with($status, self::STATUS_ERROR)) {
+            return 'error';
+        }
+
         return match ($status) {
-            self::STATUS_ALREADYTRANSLATED, self::STATUS_NOTAUTOTRANSLATED, self::STATUS_NOTHINGTOTRANSLATE => 'warning',
-            self::STATUS_ERROR => 'error',
+            self::STATUS_ALREADYTRANSLATED,
+            self::STATUS_NOTAUTOTRANSLATED,
+            self::STATUS_NOTHINGTOTRANSLATE => 'warning',
             default => 'info',
         };
     }

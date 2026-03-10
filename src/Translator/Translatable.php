@@ -11,5 +11,5 @@ interface Translatable
      * @param string $targetLocale
      * @return string
      */
-    public function translate(string $text, string $targetLocale): string;
+    public function translate(string $text, string $sourceLocale, string $targetLocale): string;
 }

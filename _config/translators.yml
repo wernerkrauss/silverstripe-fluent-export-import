@@ -1,0 +1,4 @@
+Netwerkstatt\FluentExIm\Translator\TranslatableFactory:
+  translators:
+    DeepL: Netwerkstatt\FluentExIm\Translator\DeepLTranslator
+    ChatGPT: Netwerkstatt\FluentExIm\Translator\ChatGPTTranslator

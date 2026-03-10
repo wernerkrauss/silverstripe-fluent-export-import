@@ -39,7 +39,7 @@ class FluentHelper
         return $fieldsToTranslate;
     }
 
-    public static function getLocalisedDataFromDataObject(DataObject $dataObject, string $locale = null):array
+    public static function getLocalisedDataFromDataObject(DataObject $dataObject, string|null $locale = null):array
     {
         if ($locale === null) {
             $locale = Locale::getDefault()->Locale;
